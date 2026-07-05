@@ -1,0 +1,13 @@
+{
+  "name": "仙女大战女巫",
+  "short_name": "仙女大战女巫",
+  "description": "6岁女儿的睡前故事，森林仙子大战黑暗女巫的奇幻冒险",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf3e3",
+  "theme_color": "#faf3e3",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

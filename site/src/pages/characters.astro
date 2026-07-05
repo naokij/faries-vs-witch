@@ -1,0 +1,161 @@
+---
+import Base from '~/layouts/Base.astro';
+import { allCharacters, roleLabelMap } from '~/data/characters';
+
+const total = allCharacters.length;
+const groups = {
+  leader: allCharacters.filter(c => c.role === 'leader'),
+  baby: allCharacters.filter(c => c.role === 'baby'),
+  warrior: allCharacters.filter(c => c.role === 'warrior'),
+  witch: allCharacters.filter(c => c.role === 'witch'),
+  ally: allCharacters.filter(c => c.role === 'ally'),
+};
+---
+<Base title="人物介绍 · 仙女大战女巫" active="characters">
+  <main class="page page--wide">
+    <header class="section">
+      <span class="tag tag--accent"><span class="tag__dot"></span>森林仙子村 · 名册</span>
+      <h1 style="margin-top: var(--s-2); font-size: clamp(32px, 5vw, 48px);">认识仙子们</h1>
+      <p class="text-muted mt-2" style="font-size: 16px; max-width: 60ch;">
+        {total} 位角色：1 位仙子首领、3 位宝宝仙子、5 位小勇士、{groups.ally.length} 位新伙伴、{groups.witch.length} 位反派。点击卡片看完整档案。
+      </p>
+    </header>
+
+    <section class="section" data-filter-scope>
+      <div class="tabs">
+        <button class="tab" aria-pressed="true" data-filter="all">全部 · {total}</button>
+        <button class="tab" aria-pressed="false" data-filter="leader">{roleLabelMap.leader} · {groups.leader.length}</button>
+        <button class="tab" aria-pressed="false" data-filter="baby">{roleLabelMap.baby} · {groups.baby.length}</button>
+        <button class="tab" aria-pressed="false" data-filter="warrior">{roleLabelMap.warrior} · {groups.warrior.length}</button>
+        <button class="tab" aria-pressed="false" data-filter="witch">{roleLabelMap.witch} · {groups.witch.length}</button>
+        <button class="tab" aria-pressed="false" data-filter="ally">{roleLabelMap.ally} · {groups.ally.length}</button>
+      </div>
+
+      <div class="grid grid--characters" id="char-grid">
+        {allCharacters.map(c => (
+          <article
+            class="character-card"
+            id={`char-${c.id}`}
+            data-color={c.color}
+            data-name={c.name}
+            data-role={c.role}
+            data-role-label={c.roleLabel}
+            data-age={c.age}
+            data-power={c.power}
+            data-bio={c.bio}
+            data-portrait={c.portrait}
+          >
+            <div class="character-card__portrait">
+              <img src={c.portrait} alt={c.name} loading="lazy" />
+            </div>
+            <div class="character-card__name">{c.name}</div>
+            <div class="character-card__role">{c.roleLabel} · {c.age}</div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card" style="padding: var(--s-6); background: linear-gradient(135deg, oklch(96% 0.025 320), oklch(96% 0.020 80));">
+        <h3 style="margin-bottom: var(--s-3);">人物关系（一句话版）</h3>
+        <p class="text-muted" style="font-size: 15px; line-height: 1.85; max-width: 64ch;">
+          <strong>阿玛利亚</strong>是妈妈，<strong>梦梦 / 苗苗 / 悠悠</strong>是她的三个宝宝女儿；
+          <strong>月月 / 境境 / 蓉蓉 / 冰冰 / 火火</strong>是保护她的 5 位小勇士，每位都有自己的搭档（冰冰+蓉蓉是天生搭档）。
+          她们的对手是<strong>巫巫女</strong>——住在黑暗城堡里的女巫，把光明之心偷走变成黑暗核心。
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="character-modal" aria-hidden="true" role="dialog" aria-labelledby="modal-name">
+    <div class="modal__panel" role="document">
+      <button class="modal__close" aria-label="关闭">×</button>
+      <div class="modal__portrait">
+        <img src="" alt="" id="modal-img" />
+      </div>
+      <h3 class="modal__name" id="modal-name">角色名</h3>
+      <div class="modal__role" id="modal-role"></div>
+      <dl class="modal__rows" id="modal-rows"></dl>
+      <p class="modal__bio" id="modal-bio"></p>
+    </div>
+  </div>
+
+  <script>
+    // 角色筛选
+    document.querySelectorAll<HTMLButtonElement>('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll<HTMLButtonElement>('.tab').forEach(t => t.setAttribute('aria-pressed', t === tab ? 'true' : 'false'));
+        const filter = tab.dataset.filter || 'all';
+        document.querySelectorAll<HTMLElement>('#char-grid .character-card').forEach(card => {
+          const role = card.dataset.role || '';
+          card.style.display = (filter === 'all' || role === filter) ? '' : 'none';
+        });
+      });
+    });
+
+    // 角色详情模态
+    (function () {
+      const modal = document.getElementById('character-modal') as HTMLDivElement;
+      if (!modal) return;
+      const imgEl = document.getElementById('modal-img') as HTMLImageElement;
+      const nameEl = document.getElementById('modal-name') as HTMLHeadingElement;
+      const roleEl = document.getElementById('modal-role') as HTMLDivElement;
+      const bioEl = document.getElementById('modal-bio') as HTMLParagraphElement;
+      const rowsEl = document.getElementById('modal-rows') as HTMLDListElement;
+      const closeBtn = modal.querySelector('.modal__close') as HTMLButtonElement;
+      const cards = document.querySelectorAll<HTMLElement>('#char-grid .character-card');
+
+      function open(data: any) {
+        imgEl.src = data.portrait;
+        imgEl.alt = data.name;
+        nameEl.textContent = data.name;
+        roleEl.innerHTML = '<span class="tag tag--' + data.role + '"><span class="tag__dot"></span>' + data['roleLabel'] + '</span>';
+        bioEl.textContent = data.bio;
+        rowsEl.innerHTML =
+          '<div class="modal__row"><dt>年龄</dt><dd>' + (data.age || '—') + '</dd></div>' +
+          '<div class="modal__row"><dt>能力</dt><dd>' + (data.power || '—') + '</dd></div>';
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      }
+      function close() {
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+
+      cards.forEach(card => {
+        card.addEventListener('click', () => {
+          open({
+            name: card.dataset.name,
+            role: card.dataset.role,
+            roleLabel: card.dataset.roleLabel,
+            age: card.dataset.age,
+            power: card.dataset.power,
+            bio: card.dataset.bio,
+            portrait: card.dataset.portrait,
+          });
+        });
+      });
+
+      closeBtn.addEventListener('click', close);
+      modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+
+      // URL hash 直接打开
+      const hash = location.hash.slice(1);
+      if (hash) {
+        const target = document.getElementById(hash);
+        if (target && target.classList.contains('character-card')) {
+          open({
+            name: target.dataset.name,
+            role: target.dataset.role,
+            roleLabel: target.dataset.roleLabel,
+            age: target.dataset.age,
+            power: target.dataset.power,
+            bio: target.dataset.bio,
+            portrait: target.dataset.portrait,
+          });
+        }
+      }
+    })();
+  </script>
+</Base>

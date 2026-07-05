@@ -1,0 +1,68 @@
+---
+import '~/styles/shared.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  active?: 'home' | 'list' | 'characters';
+}
+
+const { title = '仙女大战女巫 · 森林仙子村有声绘本', description = '6岁女儿的睡前故事，森林仙子大战黑暗女巫的奇幻冒险。', active = 'home' } = Astro.props;
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#faf3e3" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="仙女大战女巫" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  </head>
+  <body>
+    <h1 class="visually-hidden">仙女大战女巫 — 森林仙子村睡前有声绘本</h1>
+
+    <nav class="site-nav" data-od-id="site-nav">
+      <a href="/" class="site-nav__brand">
+        <span class="site-nav__brand-mark">仙</span>
+        <span class="site-nav__brand-text">仙女大战女巫</span>
+      </a>
+      <div class="site-nav__links">
+        <a href="/" class={`site-nav__link ${active === 'home' ? 'is-active' : ''}`} aria-current={active === 'home' ? 'page' : undefined}>首页</a>
+        <a href="/story-list" class={`site-nav__link ${active === 'list' ? 'is-active' : ''}`} aria-current={active === 'list' ? 'page' : undefined}>故事列表</a>
+        <a href="/characters" class={`site-nav__link ${active === 'characters' ? 'is-active' : ''}`} aria-current={active === 'characters' ? 'page' : undefined}>人物介绍</a>
+      </div>
+    </nav>
+
+    <slot />
+
+    <footer class="site-footer">
+      <p>森林仙子村 · 仙女大战女巫</p>
+      <p class="text-muted">由阿玛利亚的6岁女儿口述，妈妈记录整理 · 共{4}集有声绘本</p>
+    </footer>
+
+    <script>
+      // 角色卡颜色变量绑定（首页等使用 character-card 的页面）
+      document.querySelectorAll<HTMLElement>('.character-card[data-color]').forEach(card => {
+        const color = card.dataset.color;
+        if (color) card.style.setProperty('--card-color', `var(--c-${color})`);
+      });
+
+      // 高亮当前导航
+      const path = location.pathname.split('/').pop() || '';
+      document.querySelectorAll<HTMLAnchorElement>('.site-nav__link').forEach(a => {
+        const href = a.getAttribute('href')?.replace(/\/$/, '') || '';
+        if ((path === '' && href === '') || (path && href.endsWith(path))) {
+          a.setAttribute('aria-current', 'page');
+        }
+      });
+    </script>
+  </body>
+</html>

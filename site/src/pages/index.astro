@@ -1,0 +1,73 @@
+---
+import Base from '~/layouts/Base.astro';
+import { episodes } from '~/data/episodes';
+import { characters } from '~/data/characters';
+
+const featuredChars = characters.filter(c => ['amalia', 'mengmeng', 'miaomiao', 'youyou', 'bingbing', 'huohuo', 'yueyue', 'jingjing', 'rongrong', 'kukeduo', 'jianjian', 'baobao', 'kiki', 'witch'].includes(c.id));
+
+const onlineEps = episodes.filter(e => e.status === 'online');
+const latest = onlineEps[onlineEps.length - 1];
+const activeEpisodes = episodes.filter(e => e.status === 'online');
+---
+<Base title="仙女大战女巫 · 森林奇幻有声绘本" active="home">
+  <main class="page">
+    <section class="hero">
+      <div class="hero__media">
+        <img src="/assets/banners/faries-vs-witch.jpg" alt="森林池塘边的仙子们" />
+        <div class="hero__overlay">
+          <div class="hero__content hero__content--minimal">
+            <div class="hero__eyebrow">森林仙子村 · 睡前有声绘本 · 共 {activeEpisodes.length} 集</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-head__title">最新一集 · {latest.title}</h2>
+        <a href="/story-list" class="section-head__meta" style="color: var(--accent); text-decoration: none;">查看全部 {activeEpisodes.length} 集 →</a>
+      </div>
+
+      <div class="card home-latest-card">
+        <div style="aspect-ratio: 1/1; border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow-sm);">
+          <img src={latest.cover} alt={latest.title + '封面'} style="width:100%;height:100%;object-fit:cover;" />
+        </div>
+        <div>
+          <div class="flex gap-2" style="flex-wrap: wrap;">
+            <span class={`tag tag--${latest.color}`}><span class="tag__dot"></span>{latest.title}</span>
+            <span class="tag tag--accent"><span class="tag__dot"></span>EP.{String(latest.number).padStart(2, '0')} · 已上线</span>
+          </div>
+          <h3 style="margin-top: var(--s-3); font-size: 26px;">{latest.title}</h3>
+          <p class="text-muted mt-2" style="font-size: 15px; line-height: 1.8;">
+            {latest.excerpt}
+          </p>
+          <div class="flex gap-3 mt-6">
+            <a href={`/story/${latest.slug}`} class="btn btn--primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              听这一集
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-head__title">森林里的仙子们</h2>
+        <a href="/characters" class="section-head__meta" style="color: var(--accent); text-decoration: none;">查看全部 {characters.length} 位 →</a>
+      </div>
+
+      <div class="grid grid--4">
+        {featuredChars.map(c => (
+          <a href={`/characters#char-${c.id}`} class="character-card" data-color={c.color}>
+            <div class="character-card__portrait">
+              <img src={c.portrait} alt={c.name} loading="lazy" />
+            </div>
+            <div class="character-card__name">{c.name}</div>
+            <div class="character-card__role">{c.roleLabel} · {c.age}</div>
+          </a>
+        ))}
+      </div>
+    </section>
+  </main>
+</Base>

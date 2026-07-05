@@ -1,0 +1,500 @@
+---
+import Base from '~/layouts/Base.astro';
+import { episodes, getCharactersInScene } from '~/data/episodes';
+import fs from 'fs';
+import { pinyin } from 'pinyin-pro';
+
+export function getStaticPaths() {
+  return episodes.map(ep => ({ params: { slug: ep.slug }, props: { ep } }));
+}
+
+const { ep } = Astro.props;
+const chars = getCharactersInScene(ep);
+const nextEp = ep.next?.status === 'online' ? episodes.find(e => e.title === ep.next?.title) : null;
+
+// 读取故事正文 markdown
+let storyHtml = '';
+let asrWords: Array<{ text: string; start: number; end: number }> = [];
+try {
+  const storiesDir = process.cwd().replace(/\/site$/, '') + '/stories';
+  const mdPath = storiesDir + '/' + ep.slug + '.md';
+  const md = fs.readFileSync(mdPath, 'utf-8');
+  const paragraphs = md
+    .replace(/^# .+\n/, '')
+    .trim()
+    .split(/\n\n+/)
+    .map(p => p.trim())
+    .filter(p => p.length > 0 && !p.startsWith('*'));
+  // 将每段文字转成 HTML，逐字加 ruby 拼音
+  storyHtml = paragraphs.map(para => {
+    const html = pinyin(para, { toneType: 'symbol', type: 'string' });
+    // html 形如 "你(hái)好(hǎo)" — 转成 <ruby> 你 <rt>hái</rt> </ruby>
+    const withRuby = html.replace(/([\u4e00-\u9fa5，。！？、；：""''（）《》…—\sA-Za-z0-9]+)\(([^)]+)\)/g, (m, hanzi, py) => {
+      const safe = hanzi.replace(/\s/g, '&nbsp;');
+      return `<ruby>${safe}<rt class="rt">${py}</rt></ruby>`;
+    });
+    return `<p>${withRuby}</p>`;
+  }).join('');
+} catch (e) {
+  storyHtml = '<p>故事正文加载中...</p>';
+}
+
+// 读取对齐后的 ASR（已繁简转换+对齐到原文），并加拼音
+type Annotated = { text: string; start: number; end: number; py: string };
+let annotated: Annotated[] = [];
+try {
+  // 用 Vite 静态导入 — 相对路径 [slug].astro → ../../data/asr/
+  const modules = import.meta.glob('../../data/asr/*.json', { eager: true, import: 'default' });
+  // 找到匹配当前 episode 的 key
+  const alignedKey = Object.keys(modules).find(k => k.endsWith(ep.slug + '.aligned.json'));
+  const alignedModule = modules[alignedKey] as { default: Annotated[] } | undefined;
+  if (alignedModule && Array.isArray(alignedModule)) {
+    annotated = (alignedModule as Annotated[])
+      .map((w) => {
+        const text = (w as { char?: string }).char ?? (w as { text?: string }).text ?? '';
+        const start = (w as { start: number }).start;
+        const end = (w as { end: number }).end;
+        const py = (() => {
+          try {
+            const arr = pinyin(text, { toneType: 'symbol', type: 'array' });
+            return arr[0] || '';
+          } catch {
+            return '';
+          }
+        })();
+        return { text, start, end, py };
+      })
+      .filter((w) => w.text);
+  }
+} catch (e) {
+  annotated = [];
+}
+let fallbackHtml = '';
+if (annotated.length === 0) {
+  fallbackHtml = storyHtml;
+}
+---
+<Base title={`第${ep.number}集 ${ep.title} · 仙女大战女巫`} active="list">
+  <main class="page story-page">
+    <a href="/story-list" class="btn btn--ghost btn--sm mb-4" style="text-decoration: none;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+      返回剧集列表
+    </a>
+
+    <div class="story-head">
+      <div class="story-head__tags flex gap-2 mb-2" style="flex-wrap: wrap;">
+        <span class="tag tag--accent"><span class="tag__dot"></span>第{ep.number}集 · 已上线</span>
+        <span class={`tag tag--${ep.color}`}><span class="tag__dot"></span>{ep.title}</span>
+        <span class="tag tag--purple"><span class="tag__dot"></span>阿玛利亚</span>
+        {chars.filter(c => c.id === 'witch').length > 0 && (
+          <span class="tag tag--witch"><span class="tag__dot"></span>巫巫女</span>
+        )}
+      </div>
+      <h1 class="story-head__title">{ep.title}</h1>
+      <p class="story-head__sub text-muted">{ep.subtitle} · {ep.duration}</p>
+    </div>
+
+    <div class="story-layout">
+      <aside class="story-aside">
+        <div class="story-cover">
+          <img src={ep.cover} alt={ep.title + '封面'} />
+        </div>
+        <div class="story-player">
+          <button class="play-btn" id="audio-play" aria-label="播放 / 暂停">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <div class="story-player__info">
+            <div class="audio-player__state" id="audio-state" data-state="ready">点击播放</div>
+            <div class="story-player__bar" id="audio-bar">
+              <div class="story-player__bar-fill" id="audio-fill"></div>
+            </div>
+            <div class="story-player__time">
+              <span id="audio-cur">00:00</span>
+              <span id="audio-dur">{ep.duration.replace('约 ', '')}</span>
+            </div>
+          </div>
+          <div class="story-player__speed" role="group" aria-label="播放速度">
+            <button data-rate="0.8">0.8×</button>
+            <button data-rate="1" aria-pressed="true">1×</button>
+            <button data-rate="1.25">1.25×</button>
+          </div>
+          <audio id="audio-element" preload="metadata" src={ep.audio}></audio>
+        </div>
+      </aside>
+
+      <article class="story-body" id="story-body" data-words={JSON.stringify(annotated)}>
+        {annotated.length > 0 ? (
+          <div class="story-body__text">
+            {annotated.map((w, i) => (
+              <span class="w" data-i={i} data-start={w.start} data-end={w.end}>
+                <ruby>{w.text}<rt class="rt">{w.py}</rt></ruby>
+              </span>
+            ))}
+          </div>
+        ) : (
+          <div class="story-body__text" set:html={fallbackHtml} />
+        )}
+      </article>
+    </div>
+
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-head__title">本集出场角色</h2>
+        <a href="/characters" class="section-head__meta" style="color: var(--accent); text-decoration: none;">查看全部 →</a>
+      </div>
+      <div class="grid grid--4">
+        {chars.map(c => (
+          <a href={`/characters#char-${c.id}`} class="character-card" data-color={c.color}>
+            <div class="character-card__portrait">
+              <img src={c.portrait} alt={c.name} loading="lazy" />
+            </div>
+            <div class="character-card__name">{c.name}</div>
+            <div class="character-card__role">{c.roleLabel} · {c.age}</div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="section">
+      {nextEp ? (
+        <a href={`/story/${nextEp.slug}`} class="card" style="padding: var(--s-6); background: linear-gradient(135deg, oklch(94% 0.04 320), oklch(96% 0.02 80)); text-decoration: none; color: inherit; display: block;">
+          <div class="flex-between" style="flex-wrap: wrap; gap: var(--s-3);">
+            <div>
+              <span class="tag tag--accent"><span class="tag__dot"></span>下一集</span>
+              <h3 style="margin-top: var(--s-3); font-size: 24px;">EP.{String(nextEp.number).padStart(2, '0')} · {nextEp.title}</h3>
+              <p class="text-muted mt-2" style="font-size: 14px; max-width: 56ch;">{nextEp.excerpt}</p>
+            </div>
+            <span class="btn btn--primary btn--lg">听下一集 →</span>
+          </div>
+        </a>
+      ) : (
+        <div class="card" style="padding: var(--s-6); background: linear-gradient(135deg, oklch(94% 0.04 320), oklch(96% 0.02 80));">
+          <span class="tag tag--accent"><span class="tag__dot"></span>下一集预告</span>
+          <h3 style="margin-top: var(--s-3); font-size: 24px;">{ep.next?.title}</h3>
+          <p class="text-muted mt-2" style="font-size: 14px;">敬请期待新的冒险。</p>
+        </div>
+      )}
+    </section>
+  </main>
+
+  <script define:vars={{ asrWords }}>
+    (function () {
+      const audio = document.getElementById('audio-element');
+      const playBtn = document.getElementById('audio-play');
+      const bar = document.getElementById('audio-bar');
+      const fill = document.getElementById('audio-fill');
+      const cur = document.getElementById('audio-cur');
+      const dur = document.getElementById('audio-dur');
+      const state = document.getElementById('audio-state');
+      const speedBtns = document.querySelectorAll('.story-player__speed button');
+      const body = document.getElementById('story-body');
+      if (!audio || !body) return;
+
+      const words = asrWords && asrWords.length
+        ? asrWords
+        : Array.from(body.querySelectorAll('.story-body__text > p')).flatMap(p =>
+            Array.from(p.querySelectorAll('ruby')).map(r => ({
+              text: (r.textContent || '').replace(/[^一-龥]/g, ''),
+              el: r,
+            }))
+          ).filter(w => w.text);
+
+      const spanEls = body.querySelectorAll('.w');
+      const wordEls = spanEls.length
+        ? Array.from(spanEls).map(s => ({ el: s, start: parseFloat(s.dataset.start), end: parseFloat(s.dataset.end) }))
+        : words.map(w => ({ el: w.el, start: 0, end: 0 }));
+
+      function fmt(sec) {
+        if (!isFinite(sec) || sec < 0) sec = 0;
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+      }
+      function setState(s, label) { if (state) { state.dataset.state = s; state.textContent = label; } }
+      function setPlayingUI(p) {
+        const svg = playBtn.querySelector('svg');
+        if (!svg) return;
+        svg.innerHTML = p
+          ? '<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>'
+          : '<path d="M8 5v14l11-7z"/>';
+      }
+
+      playBtn.addEventListener('click', () => {
+        if (audio.paused) audio.play();
+        else audio.pause();
+      });
+
+      bar.addEventListener('click', (e) => {
+        const rect = bar.getBoundingClientRect();
+        const ratio = (e.clientX - rect.left) / rect.width;
+        if (audio.duration) audio.currentTime = audio.duration * ratio;
+      });
+
+      let activeIdx = -1;
+      function highlight(t) {
+        const idx = wordEls.findIndex(w => t >= w.start && t < w.end);
+        if (idx === activeIdx) return;
+        if (activeIdx >= 0 && wordEls[activeIdx]) wordEls[activeIdx].el.classList.remove('is-active');
+        if (idx >= 0) {
+          wordEls[idx].el.classList.add('is-active');
+          const el = wordEls[idx].el;
+          const rect = el.getBoundingClientRect();
+          const vh = window.innerHeight;
+          // 自动滚动到当前字
+          const isMobile = window.innerWidth < 720;
+          const blockMode = isMobile ? 'nearest' : 'center';
+          if (rect.top < 100 || rect.bottom > vh * 0.6) {
+            el.scrollIntoView({ behavior: 'smooth', block: blockMode });
+          }
+        }
+        activeIdx = idx;
+      }
+
+      audio.addEventListener('timeupdate', () => {
+        if (!audio.duration) return;
+        const pct = (audio.currentTime / audio.duration) * 100;
+        fill.style.width = pct + '%';
+        cur.textContent = fmt(audio.currentTime);
+        highlight(audio.currentTime);
+      });
+      audio.addEventListener('loadedmetadata', () => {
+        dur.textContent = fmt(audio.duration);
+        setState('ready', '点击播放');
+      });
+      audio.addEventListener('play', () => { setPlayingUI(true); setState('playing', '正在播放'); });
+      audio.addEventListener('pause', () => { setPlayingUI(false); setState('ready', '已暂停'); });
+      audio.addEventListener('ended', () => { setPlayingUI(false); setState('ready', '本集已播完'); });
+      audio.addEventListener('error', () => { setPlayingUI(false); setState('error', '音频加载失败'); });
+
+      speedBtns.forEach(b => {
+        b.addEventListener('click', () => {
+          audio.playbackRate = parseFloat(b.dataset.rate || '1');
+          speedBtns.forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+        });
+      });
+    })();
+  </script>
+</Base>
+
+<style>
+  .story-page { max-width: 1400px; }
+  .story-head { margin-bottom: var(--s-5); }
+  .story-head__title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 44px);
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .story-head__sub { font-size: 16px; margin-top: 4px; }
+
+  /* 桌面端：左侧粘性侧栏（封面+播放器），右侧长文 */
+  .story-layout {
+    display: grid;
+    grid-template-columns: 480px 1fr;
+    gap: var(--s-10);
+    align-items: start;
+  }
+  .story-aside {
+    position: sticky;
+    top: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+  }
+  .story-cover {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    background: var(--surface-2);
+    box-shadow: var(--shadow-lg);
+  }
+  .story-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .story-player {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: var(--s-3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-2);
+  }
+  .story-player .play-btn { width: 56px; height: 56px; }
+  .story-player .play-btn svg { width: 24px; height: 24px; }
+  .story-player__info { width: 100%; text-align: center; }
+  .audio-player__state {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .audio-player__state[data-state="playing"] { color: var(--accent-strong); }
+  .story-player__bar {
+    width: 100%;
+    height: 6px;
+    background: var(--surface-2);
+    border-radius: var(--r-pill);
+    cursor: pointer;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .story-player__bar-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--accent), var(--c-lavender));
+    border-radius: var(--r-pill);
+    transition: width 0.1s linear;
+  }
+  .story-player__time {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .story-player__speed {
+    display: flex;
+    gap: 4px;
+    background: var(--surface-2);
+    border-radius: var(--r-pill);
+    padding: 2px;
+  }
+  .story-player__speed button {
+    background: transparent;
+    border: 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    padding: 3px 8px;
+    border-radius: var(--r-pill);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .story-player__speed button[aria-pressed="true"] {
+    background: var(--accent);
+    color: white;
+  }
+
+  /* 故事正文 */
+  .story-body {
+    font-size: 19px;
+    line-height: 2.4;
+    color: var(--fg-soft);
+    padding-bottom: var(--s-12);
+  }
+  .story-body p { margin-bottom: 1.5em; }
+  .story-body__text { white-space: pre-wrap; }
+  .story-body .w {
+    display: inline-block;
+    transition: all 0.2s;
+    border-radius: 3px;
+    padding: 1px 0;
+  }
+  .story-body .w.is-active {
+    background: oklch(95% 0.06 80 / 0.6);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+    color: var(--fg);
+  }
+  .story-body ruby {
+    ruby-align: center;
+    display: inline-flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    line-height: 1;
+    margin: 0 1px;
+  }
+  .story-body rt.rt {
+    font-size: 0.45em;
+    color: var(--c-leaf);
+    font-weight: 500;
+    line-height: 1;
+    margin-bottom: 2px;
+    text-align: center;
+    font-family: var(--font-body);
+    user-select: none;
+  }
+
+  /* 平板端 (721px - 1024px) */
+  @media (min-width: 721px) and (max-width: 1024px) {
+    .story-layout {
+      grid-template-columns: 300px 1fr;
+      gap: var(--s-5);
+    }
+    .story-cover {
+      border-radius: var(--r-lg);
+    }
+  }
+
+  /* 移动端：音乐播放器风格 — 上方大封面 + 中间1行文字 + 下方播放器 */
+  @media (max-width: 720px) {
+    .story-layout {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .story-aside {
+      position: sticky;
+      top: 56px;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border-radius: 0 0 var(--r-lg) var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--s-4);
+    }
+    .story-cover {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 100%;
+      min-width: unset;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .story-player {
+      border: 0;
+      border-radius: 0;
+      padding: var(--s-3);
+      flex-direction: row;
+      align-items: center;
+      gap: var(--s-2);
+      background: linear-gradient(180deg, var(--surface), var(--bg-deep));
+    }
+    .story-player .play-btn {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+    }
+    .story-player .play-btn svg { width: 22px; height: 22px; }
+    .story-player__info {
+      flex: 1;
+      min-width: 0;
+    }
+    .story-player__info .audio-player__state {
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .story-player__bar {
+      height: 6px;
+    }
+    .story-player__time {
+      font-size: 11px;
+    }
+    .story-player__speed {
+      margin-left: auto;
+    }
+
+    .story-head { margin-bottom: var(--s-4); }
+    .story-head__title { font-size: 24px; }
+    .story-head__tags .tag { font-size: 11px; }
+
+    .story-body {
+      font-size: 17px;
+      line-height: 2.2;
+      padding-bottom: var(--s-16);
+      /* 确保正文不会被粘性元素挡住 */
+      scroll-margin-top: 200px;
+    }
+  }
+</style>
