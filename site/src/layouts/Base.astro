@@ -7,7 +7,7 @@ interface Props {
   active?: 'home' | 'list' | 'characters';
 }
 
-const { title = '仙女大战女巫 · 森林仙子村有声绘本', description = '6岁女儿的睡前故事，森林仙子大战黑暗女巫的奇幻冒险。', active = 'home' } = Astro.props;
+const { title = '仙子大战女巫 · 森林仙子村有声绘本', description = '6岁女儿的睡前故事，森林仙子大战黑暗女巫的奇幻冒险。', active = 'home' } = Astro.props;
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -23,16 +23,16 @@ const { title = '仙女大战女巫 · 森林仙子村有声绘本', description
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="仙女大战女巫" />
+    <meta name="apple-mobile-web-app-title" content="仙子大战女巫" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   </head>
   <body>
-    <h1 class="visually-hidden">仙女大战女巫 — 森林仙子村睡前有声绘本</h1>
+    <h1 class="visually-hidden">仙子大战女巫 — 森林仙子村睡前有声绘本</h1>
 
     <nav class="site-nav" data-od-id="site-nav">
       <a href="/" class="site-nav__brand">
         <span class="site-nav__brand-mark">仙</span>
-        <span class="site-nav__brand-text">仙女大战女巫</span>
+        <span class="site-nav__brand-text">仙子大战女巫</span>
       </a>
       <div class="site-nav__links">
         <a href="/" class={`site-nav__link ${active === 'home' ? 'is-active' : ''}`} aria-current={active === 'home' ? 'page' : undefined}>首页</a>
@@ -44,7 +44,7 @@ const { title = '仙女大战女巫 · 森林仙子村有声绘本', description
     <slot />
 
     <footer class="site-footer">
-      <p>森林仙子村 · 仙女大战女巫</p>
+      <p>森林仙子村 · 仙子大战女巫</p>
       <p class="text-muted">由 6 岁的小橘子口述，爸爸记录整理 · 共 6 集有声绘本</p>
       <p class="text-muted" style="margin-top: 6px; font-size: 12px;">
         <a href="https://github.com/naokij/faries-vs-witch" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">GitHub →</a>
