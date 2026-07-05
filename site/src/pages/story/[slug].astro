@@ -14,7 +14,6 @@ const nextEp = ep.next?.status === 'online' ? episodes.find(e => e.title === ep.
 
 // 读取故事正文 markdown
 let storyHtml = '';
-let asrWords: Array<{ text: string; start: number; end: number }> = [];
 try {
   const storiesDir = process.cwd().replace(/\/site$/, '') + '/stories';
   const mdPath = storiesDir + '/' + ep.slug + '.md';
@@ -167,7 +166,7 @@ if (annotated.length > 0) {
         </div>
       </aside>
 
-      <article class="story-body" id="story-body" data-words={JSON.stringify(annotated)}>
+      <article class="story-body" id="story-body">
         {annotated.length > 0 ? (
           <div class="story-body__text">
             {paraGroups.map(group => (
@@ -238,7 +237,7 @@ if (annotated.length > 0) {
     </section>
   </main>
 
-  <script define:vars={{ asrWords }}>
+  <script>
     (function () {
       const audio = document.getElementById('audio-element');
       const playBtn = document.getElementById('audio-play');
@@ -251,19 +250,29 @@ if (annotated.length > 0) {
       const body = document.getElementById('story-body');
       if (!audio || !body) return;
 
-      const words = asrWords && asrWords.length
-        ? asrWords
-        : Array.from(body.querySelectorAll('.story-body__text > p')).flatMap(p =>
-            Array.from(p.querySelectorAll('ruby')).map(r => ({
-              text: (r.textContent || '').replace(/[^一-龥]/g, ''),
-              el: r,
-            }))
-          ).filter(w => w.text);
+      // fallback 路径：没有 .w span 时从 ruby 元素构建
+      const words = Array.from(body.querySelectorAll('.story-body__text > p')).flatMap(p =>
+        Array.from(p.querySelectorAll('ruby')).map(r => ({
+          text: (r.textContent || '').replace(/[^一-龥]/g, ''),
+          el: r,
+        }))
+      ).filter(w => w.text);
 
       const spanEls = body.querySelectorAll('.w');
       const wordEls = spanEls.length
         ? Array.from(spanEls).map(s => ({ el: s, start: parseFloat(s.dataset.start), end: parseFloat(s.dataset.end) }))
         : words.map(w => ({ el: w.el, start: 0, end: 0 }));
+
+      // 缓存滚动相关值，避免每次 highlight 都查询 DOM / 触发重排
+      const asideEl = document.querySelector('.story-aside');
+      let isMobile = window.innerWidth < 720;
+      let vh = window.innerHeight;
+      let asideBottom = asideEl ? asideEl.getBoundingClientRect().bottom : 56;
+      window.addEventListener('resize', () => {
+        isMobile = window.innerWidth < 720;
+        vh = window.innerHeight;
+        asideBottom = asideEl ? asideEl.getBoundingClientRect().bottom : 56;
+      });
 
       function fmt(sec) {
         if (!isFinite(sec) || sec < 0) sec = 0;
@@ -317,24 +326,23 @@ if (annotated.length > 0) {
           // 滚动：禁用平滑动画 + 最多每秒 1 次
           const now = Date.now();
           if (now - lastScrollTime > 1000) {
-            lastScrollTime = now;
             const el = wordEls[idx].el;
             const rect = el.getBoundingClientRect();
-            const vh = window.innerHeight;
-            const isMobile = window.innerWidth < 720;
-            let target;
             if (isMobile) {
-              // 移动端：定位到粘性 aside（封面+播放器）下方，但距视口底部至少 120px
-              // 避免 iOS Safari 底部工具栏遮挡
-              const sticky = document.querySelector('.story-aside');
-              const stickyBottom = sticky ? sticky.getBoundingClientRect().bottom : 56;
-              target = Math.min(stickyBottom + 24, vh - 120);
+              // 移动端：字偏离目标位置才滚动
+              const target = Math.min(asideBottom + 24, vh - 120);
+              if (Math.abs(rect.top - target) > 30) {
+                lastScrollTime = now;
+                window.scrollTo({ top: window.scrollY + rect.top - target, behavior: 'auto' });
+              }
             } else {
-              target = vh * 0.5;
-            }
-            // 字偏离目标位置才实际滚动（已在目标附近则 scrollTo 到相同值，不跳动）
-            if (Math.abs(rect.top - target) > 30) {
-              window.scrollTo({ top: window.scrollY + rect.top - target, behavior: 'auto' });
+              // 桌面端/iPad：字在视口可见区域内不滚动，接近边缘才滚到中间
+              // 大幅减少滚动频率，避免 iPad 性能问题
+              const margin = 120;
+              if (rect.top < margin || rect.bottom > vh - margin) {
+                lastScrollTime = now;
+                window.scrollTo({ top: window.scrollY + rect.top - vh * 0.5, behavior: 'auto' });
+              }
             }
           }
         }
@@ -343,16 +351,22 @@ if (annotated.length > 0) {
 
       // 节流 timeupdate：最多每 300ms 跑一次（老设备友好）
       let lastTime = 0;
+      let lastDisplayedSec = -1;
       audio.addEventListener('timeupdate', () => {
         const now = performance.now();
-        if (now - lastTime < 300) { cur.textContent = fmt(audio.currentTime); return; }
+        if (now - lastTime < 300) return;
         lastTime = now;
 
         if (!audio.duration) return;
-        const pct = (audio.currentTime / audio.duration) * 100;
+        const t = audio.currentTime;
+        const pct = (t / audio.duration) * 100;
         fill.style.width = pct + '%';
-        cur.textContent = fmt(audio.currentTime);
-        highlight(audio.currentTime);
+        const sec = Math.floor(t);
+        if (sec !== lastDisplayedSec) {
+          lastDisplayedSec = sec;
+          cur.textContent = fmt(t);
+        }
+        highlight(t);
       });
       audio.addEventListener('loadedmetadata', () => {
         dur.textContent = fmt(audio.duration);
@@ -481,7 +495,7 @@ if (annotated.length > 0) {
     padding-bottom: var(--s-12);
   }
   .story-body p { margin-bottom: 1.5em; }
-  .story-body__text { white-space: pre-wrap; }
+  .story-body__text {}
   .story-body .w {
     display: inline-block;
     border-radius: 3px;
