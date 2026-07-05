@@ -318,7 +318,24 @@ if (annotated.length > 0) {
           const now = Date.now();
           if (now - lastScrollTime > 1000) {
             lastScrollTime = now;
-            wordEls[idx].el.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+            const el = wordEls[idx].el;
+            const rect = el.getBoundingClientRect();
+            const vh = window.innerHeight;
+            const isMobile = window.innerWidth < 720;
+            let target;
+            if (isMobile) {
+              // 移动端：定位到粘性 aside（封面+播放器）下方，但距视口底部至少 120px
+              // 避免 iOS Safari 底部工具栏遮挡
+              const sticky = document.querySelector('.story-aside');
+              const stickyBottom = sticky ? sticky.getBoundingClientRect().bottom : 56;
+              target = Math.min(stickyBottom + 24, vh - 120);
+            } else {
+              target = vh * 0.5;
+            }
+            // 字偏离目标位置才实际滚动（已在目标附近则 scrollTo 到相同值，不跳动）
+            if (Math.abs(rect.top - target) > 30) {
+              window.scrollTo({ top: window.scrollY + rect.top - target, behavior: 'auto' });
+            }
           }
         }
         activeIdx = idx;
