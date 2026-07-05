@@ -24,3 +24,4 @@ Thumbs.db
 # ASR raw data (generated, large)
 site/data/asr/*.json
 !site/data/asr/*.aligned.json
+.wrangler/
