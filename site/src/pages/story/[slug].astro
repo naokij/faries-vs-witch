@@ -27,13 +27,18 @@ try {
     .filter(p => p.length > 0 && !p.startsWith('*'));
   // 将每段文字转成 HTML，逐字加 ruby 拼音
   storyHtml = paragraphs.map(para => {
-    const html = pinyin(para, { toneType: 'symbol', type: 'string' });
-    // html 形如 "你(hái)好(hǎo)" — 转成 <ruby> 你 <rt>hái</rt> </ruby>
-    const withRuby = html.replace(/([\u4e00-\u9fa5，。！？、；：""''（）《》…—\sA-Za-z0-9]+)\(([^)]+)\)/g, (m, hanzi, py) => {
-      const safe = hanzi.replace(/\s/g, '&nbsp;');
-      return `<ruby>${safe}<rt class="rt">${py}</rt></ruby>`;
-    });
-    return `<p>${withRuby}</p>`;
+    const pyArr = pinyin(para, { toneType: 'symbol', type: 'array' });
+    let html = '';
+    for (let i = 0; i < para.length; i++) {
+      const ch = para[i];
+      const py = pyArr[i] || '';
+      if (ch >= '\u4e00' && ch <= '\u9fff') {
+        html += `<ruby>${ch}<rt class="rt">${py}</rt></ruby>`;
+      } else {
+        html += ch;
+      }
+    }
+    return `<p>${html}</p>`;
   }).join('');
 } catch (e) {
   storyHtml = '<p>故事正文加载中...</p>';
@@ -43,17 +48,15 @@ try {
 type Annotated = { text: string; start: number; end: number; py: string };
 let annotated: Annotated[] = [];
 try {
-  // 用 Vite 静态导入 — 相对路径 [slug].astro → ../../data/asr/
-  const modules = import.meta.glob('../../data/asr/*.json', { eager: true, import: 'default' });
-  // 找到匹配当前 episode 的 key
-  const alignedKey = Object.keys(modules).find(k => k.endsWith(ep.slug + '.aligned.json'));
-  const alignedModule = modules[alignedKey] as { default: Annotated[] } | undefined;
-  if (alignedModule && Array.isArray(alignedModule)) {
-    annotated = (alignedModule as Annotated[])
-      .map((w) => {
-        const text = (w as { char?: string }).char ?? (w as { text?: string }).text ?? '';
-        const start = (w as { start: number }).start;
-        const end = (w as { end: number }).end;
+  const asrDir = process.cwd() + '/data/asr';
+  const alignedPath = asrDir + '/' + ep.slug + '.aligned.json';
+  const raw = JSON.parse(fs.readFileSync(alignedPath, 'utf-8'));
+  if (Array.isArray(raw)) {
+    annotated = raw
+      .map((w: { char?: string; text?: string; start: number; end: number }) => {
+        const text = w.char ?? w.text ?? '';
+        const start = w.start;
+        const end = w.end;
         const py = (() => {
           try {
             const arr = pinyin(text, { toneType: 'symbol', type: 'array' });
@@ -64,7 +67,7 @@ try {
         })();
         return { text, start, end, py };
       })
-      .filter((w) => w.text);
+      .filter((w: Annotated) => w.text);
   }
 } catch (e) {
   annotated = [];

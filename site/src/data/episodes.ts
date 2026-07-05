@@ -152,7 +152,7 @@ export const episodes: Episode[] = [
     cover: '/assets/covers/4-恶魔王大战斗.jpg',
     audio: '/audio/4-恶魔王大战斗.mp3',
     color: 'witch',
-    excerpt: '巫婆的 boss 恶魔王和女蝙蝠侠出现了！包包用豆包甜品转转枪，健健用精灵弓。但冰火仙子的魔法被毒液腐蚀了，三花猫仙子 Niki 来了。',
+    excerpt: '巫婆的 boss 恶魔王和女蝙蝠侠出现了！包包用豆包甜品转转枪，健健用精灵弓。但冰火仙子的魔法被毒液腐蚀了，三花猫仙子 Kiki 来了。',
     intro: '更大的威胁正在逼近——恶魔王来了！',
     scenes: [
       {
@@ -167,12 +167,86 @@ export const episodes: Episode[] = [
       },
       {
         illust: '/assets/characters/仙子首领-阿玛利亚.jpg',
-        title: 'Niki 加入',
-        body: '库克多又来了，这次带来了猫咪仙子国的三花猫仙子 Niki。新的战斗即将开始。',
+        title: 'Kiki 加入',
+        body: '库克多又来了，这次带来了猫咪王国的三花猫仙子 Kiki。新的战斗即将开始。',
       },
     ],
     charactersInScene: ['amalia', 'mengmeng', 'miaomiao', 'youyou', 'bingbing', 'huohuo', 'witch', 'baobao', 'jianjian', 'demon', 'batwoman', 'kukeduo', 'kiki'],
-    next: { title: '第五集', status: 'soon' },
+    next: { title: '仙子朋友的故事', status: 'online' },
+  },
+  {
+    slug: '5-仙子朋友的故事',
+    number: 5,
+    title: '仙子朋友的故事',
+    subtitle: '树桥边的新朋友',
+    duration: '约 12 分钟',
+    status: 'online',
+    cover: '/assets/covers/5-仙子朋友的故事.jpg',
+    audio: '/audio/5-仙子朋友的故事.mp3',
+    color: 'snow',
+    excerpt: 'Kiki想回猫咪王国看好朋友花花、泡泡、毛毛了。蓉蓉送给她传送门小包包，以后随时可以来仙子森林玩，还可以带朋友们一起来！',
+    intro: 'Kiki想回猫咪王国了——她有几个好朋友在等她，花花、泡泡、毛毛是谁呢？',
+    scenes: [
+      {
+        illust: '/assets/characters/三花猫仙子-Kiki.jpg',
+        title: 'Kiki想家了',
+        body: '自从库克多带来Kiki后，她一直和大家住在一起。可是今天Kiki想回猫咪王国了，她想念好朋友花花、泡泡、毛毛。',
+      },
+      {
+        illust: '/assets/characters/精灵王子守卫-库克多.jpg',
+        title: '库克多的朋友',
+        body: '花花、泡泡、毛毛都是库克多介绍给Kiki认识的！花花会变魔术，泡泡会吹泡泡，毛毛会做毛线玩具。',
+      },
+      {
+        illust: '/assets/characters/白雪仙子-蓉蓉.jpg',
+        title: '传送门小包包',
+        body: '蓉蓉送给Kiki一个传送门小包包。想朋友的时候，说一声"去仙子森林"，传送门嘟嘟嘟嘟嘟，嗖的一下就到了！',
+      },
+      {
+        illust: '/assets/characters/三花猫仙子-Kiki.jpg',
+        title: '回到猫咪王国',
+        body: '传送门嘟嘟嘟嘟嘟——"到猫咪王国，乘客请下车。"Kiki挥手告别，下次一定会带花花、泡泡、毛毛一起来！',
+      },
+    ],
+    charactersInScene: ['rongrong', 'kiki', 'kukeduo', 'bingbing', 'huohuo', 'amalia'],
+    next: { title: '仙子交了新朋友的故事', status: 'online' },
+  },
+  {
+    slug: '6-仙子交了新朋友的故事',
+    number: 6,
+    title: '仙子交了新朋友的故事',
+    subtitle: '蔬菜王国的西兰花仙子',
+    duration: '约 10 分钟',
+    status: 'online',
+    cover: '/assets/covers/6-仙子交了新朋友的故事.jpg',
+    audio: '/audio/6-仙子交了新朋友的故事.mp3',
+    color: 'leaf',
+    excerpt: '阿玛利亚在树桥另一边遇到了迷路的西兰花仙子兰兰。兰兰来自蔬菜王国，阿玛利亚用传送门送她回家，还送了她一个仙子小手表。朋友越来越多，仙子森林越来越热闹！',
+    intro: '阿玛利亚去树桥另一边查看花草地的恢复情况——',
+    scenes: [
+      {
+        illust: '/assets/characters/仙子首领-阿玛利亚.jpg',
+        title: '阿玛利亚出发',
+        body: '恶魔王的毒液破坏了森林，阿玛利亚去树桥另一边查看花草地的恢复情况。清晨的花草地美极了，到处都是五颜六色的小花。',
+      },
+      {
+        illust: '/assets/characters/西兰花仙子-兰兰.jpg',
+        title: '迷路的兰兰',
+        body: '花丛后面蹲着一个小姑娘——橙红色双丸子头别着西兰花发饰，红色蓬蓬裙，琥珀金色大眼睛里挂着泪珠。她是蔬菜王国的西兰花仙子兰兰。',
+      },
+      {
+        illust: '/assets/characters/仙子首领-阿玛利亚.jpg',
+        title: '仙子小手表',
+        body: '阿玛利亚送给兰兰传送门小包包和仙子小手表。想朋友的时候，按一下表上的小仙子，传送门就会打开！',
+      },
+      {
+        illust: '/assets/characters/西兰花仙子-兰兰.jpg',
+        title: '回到蔬菜王国',
+        body: '传送门嘟嘟嘟嘟嘟——"到蔬菜王国，乘客请下车。"兰兰蹦蹦跳跳地跳进传送门，回到了蔬菜王国！',
+      },
+    ],
+    charactersInScene: ['amalia', 'lanlan', 'rongrong', 'bingbing', 'huohuo', 'mengmeng', 'miaomiao', 'youyou'],
+    next: { title: '第七集', status: 'soon' },
   },
 ];
 
