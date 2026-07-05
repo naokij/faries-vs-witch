@@ -34,29 +34,17 @@ faries-vs-witch/
 
 ## 配音
 
-配音使用两种方式：
+全部用 `mmx-cli`（MiniMax 平台）的 `Chinese (Mandarin)_Cute_Spirit` 音色生成。
 
-### 1. MiMo TTS 音色克隆（第一集）
-第一集用女儿的录音作为参考样本，通过 MiMo V2.5 TTS 的 voiceclone 模型生成，保留了小女孩特有的稚嫩感。
-```bash
-python3 mimo_tts_voiceclone.py \
-  --voice-file 仙子参考录音.wav \
-  --context "6岁小女孩在给小伙伴讲故事，声音稚嫩清脆" \
-  --text "故事正文..." \
-  --output 1-冰火仙子.wav
-```
-
-### 2. MiniMax TTS（第二至四集）
-后续集数用 `mmx-cli` 的 `Chinese (Mandarin)_Cute_Spirit` 音色生成。
 ```bash
 mmx speech synthesize \
   --text "故事正文（带标题）" \
   --voice "Chinese (Mandarin)_Cute_Spirit" \
   --language zh \
-  --out 2-植物梦幻仙子.mp3
+  --out 5-新集.mp3
 ```
 
-### 3. ASR 逐字时间戳
+### ASR 逐字时间戳
 用 `whisper` 对 mp3 做语音识别，提取每个字的起止时间，然后通过对齐脚本映射到原文汉字，实现播放时逐字高亮 + 自动滚动。
 ```bash
 # 1) ASR 识别
@@ -70,7 +58,7 @@ python3 site/scripts/align-asr.py \
   data/asr/5-新集.aligned.json
 ```
 
-### 4. 拼音标注
+### 拼音标注
 每个汉字在构建时自动生成拼音（`pinyin-pro` 库），以 `<ruby>` 标签嵌入 HTML，支持拼音显示切换。
 
 ## 日常更新
