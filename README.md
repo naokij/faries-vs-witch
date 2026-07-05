@@ -24,6 +24,45 @@ faries-vs-witch/
 └── README.md
 ```
 
+## 部署到 Cloudflare Pages
+
+推荐用 Git 集成方式，自动部署：
+
+### 方式一：Git 集成（推荐）
+
+1. 把仓库推送到 GitHub
+2. 打开 [Cloudflare Dashboard](https://dash.cloudflare.com) → **Workers & Pages** → **创建** → **Pages** → **连接到 Git**
+3. 选择 `naokij/faries-vs-witch` 仓库
+4. 配置构建设置：
+
+| 设置项 | 值 |
+|--------|-----|
+| 项目名称 | `faries-vs-witch` |
+| 生产分支 | `master` |
+| 根目录 | `/site` |
+| 构建命令 | `npm run build` |
+| 构建输出目录 | `dist` |
+| Node.js 版本 | `22` |
+
+5. 点击 **保存并部署**
+
+之后每次推送 `master` 分支都会自动构建部署。
+
+### 方式二：Wrangler CLI
+
+```bash
+# 安装 wrangler
+npm install -g wrangler
+
+# 部署（从 site/ 目录）
+cd site
+wrangler pages deploy dist/ --project-name faries-vs-witch
+```
+
+### 环境变量
+
+无需任何环境变量，站点为纯静态 HTML。
+
 ## 技术栈
 
 - **Astro 7** — 静态站点生成器

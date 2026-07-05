@@ -1,0 +1,14 @@
+name = "faries-vs-witch"
+
+# 构建配置
+[build]
+  command = "npm run build"
+  output = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[redirects]]
+  from = "/story-list"
+  to = "/story-list/"
+  status = 200
