@@ -86,7 +86,7 @@ if (annotated.length === 0) {
 
     <div class="story-head">
       <div class="story-head__tags flex gap-2 mb-2" style="flex-wrap: wrap;">
-        <span class="tag tag--accent"><span class="tag__dot"></span>第{ep.number}集 · 已上线</span>
+        <span class={`tag tag--${ep.status === 'online' ? 'accent' : ''}`}><span class="tag__dot"></span>第{ep.number}集 · {ep.status === 'online' ? '已上线' : '敬请期待'}</span>
         <span class={`tag tag--${ep.color}`}><span class="tag__dot"></span>{ep.title}</span>
         <span class="tag tag--purple"><span class="tag__dot"></span>阿玛利亚</span>
         {chars.filter(c => c.id === 'witch').length > 0 && (
@@ -97,6 +97,7 @@ if (annotated.length === 0) {
       <p class="story-head__sub text-muted">{ep.subtitle} · {ep.duration}</p>
     </div>
 
+    {ep.status === 'online' ? (
     <div class="story-layout">
       <aside class="story-aside">
         <div class="story-cover">
@@ -139,6 +140,14 @@ if (annotated.length === 0) {
         )}
       </article>
     </div>
+    ) : (
+    <div class="card" style="padding: var(--s-10); text-align: center; background: linear-gradient(135deg, oklch(96% 0.02 80), oklch(94% 0.04 320));">
+      <div style="font-size: 48px; margin-bottom: var(--s-4);">🔒</div>
+      <h2 style="font-size: 24px; margin-bottom: var(--s-3);">本集尚未上线</h2>
+      <p class="text-muted" style="font-size: 16px; max-width: 40ch; margin: 0 auto;">敬请期待新的冒险，精彩即将揭晓！</p>
+      <a href="/story-list" class="btn btn--primary" style="margin-top: var(--s-5);">返回剧集列表</a>
+    </div>
+    )}
 
     <section class="section">
       <div class="section-head">
