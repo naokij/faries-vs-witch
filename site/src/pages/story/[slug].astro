@@ -76,6 +76,47 @@ let fallbackHtml = '';
 if (annotated.length === 0) {
   fallbackHtml = storyHtml;
 }
+
+// 将 annotated 按段落分组，恢复 markdown 的分段结构。
+// aligned JSON 是原文非空白字符的子序列（align-asr.py 输出的 char 即 ref_chars[ref_pos]），
+// 因此用贪心子序列匹配为每个 annotated 字分配段落索引。
+type AnnotatedWord = Annotated & { paraIdx: number };
+let paraGroups: AnnotatedWord[][] = [];
+if (annotated.length > 0) {
+  // flatRef: 所有段落的非空白字符，带段落索引
+  const flatRef: { paraIdx: number; char: string }[] = [];
+  try {
+    const storiesDir = process.cwd().replace(/\/site$/, '') + '/stories';
+    const mdPath = storiesDir + '/' + ep.slug + '.md';
+    const md = fs.readFileSync(mdPath, 'utf-8');
+    const paras = md
+      .replace(/^# .+\n/, '')
+      .trim()
+      .split(/\n\n+/)
+      .map(p => p.trim())
+      .filter(p => p.length > 0 && !p.startsWith('*'));
+    paras.forEach((p, pi) => {
+      for (const ch of p) {
+        if (!/\s/.test(ch)) flatRef.push({ paraIdx: pi, char: ch });
+      }
+    });
+  } catch (e) {
+    // 读取失败则退化为单段
+  }
+  let k = 0;
+  const lastPara = () => (flatRef.length ? flatRef[flatRef.length - 1].paraIdx : 0);
+  paraGroups = annotated.map((w, gi) => {
+    const ch = w.text;
+    while (k < flatRef.length && flatRef[k].char !== ch) k++;
+    const paraIdx = k < flatRef.length ? flatRef[k].paraIdx : lastPara();
+    if (k < flatRef.length) k++;
+    return { ...w, paraIdx, gi };
+  }).reduce((acc: AnnotatedWord[][], w) => {
+    if (acc.length === 0 || acc[acc.length - 1][0].paraIdx !== w.paraIdx) acc.push([]);
+    acc[acc.length - 1].push(w);
+    return acc;
+  }, []);
+}
 ---
 <Base title={`第${ep.number}集 ${ep.title} · 仙子大战女巫`} active="list">
   <main class="page story-page">
@@ -129,10 +170,18 @@ if (annotated.length === 0) {
       <article class="story-body" id="story-body" data-words={JSON.stringify(annotated)}>
         {annotated.length > 0 ? (
           <div class="story-body__text">
-            {annotated.map((w, i) => (
-              <span class="w" data-i={i} data-start={w.start} data-end={w.end}>
-                <ruby>{w.text}<rt class="rt">{w.py}</rt></ruby>
-              </span>
+            {paraGroups.map(group => (
+              <p>
+                {group.map(w => (
+                  w.text >= '\u4e00' && w.text <= '\u9fff' ? (
+                    <span class="w" data-i={w.gi} data-start={w.start} data-end={w.end}>
+                      <ruby>{w.text}<rt class="rt">{w.py}</rt></ruby>
+                    </span>
+                  ) : (
+                    w.text
+                  )
+                ))}
+              </p>
             ))}
           </div>
         ) : (

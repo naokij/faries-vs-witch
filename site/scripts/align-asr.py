@@ -86,8 +86,19 @@ for blk in sm.get_opcodes():
                     'end': base_time[1],
                 })
     elif tag == 'delete':
-        # ASR 多出来的字符（错字），忽略
-        pass
+        # 原文有、ASR 没有（通常是标点，ASR 不识别标点）
+        # 保留字符：标点零时长（紧贴前字，不会被高亮二分查找命中）；
+        # 漏识别的汉字用前后时间戳插值，仍可被高亮。
+        prev_end = result[-1]['end'] if result else 0
+        next_start = asr_chars[j1]['start'] if j1 < len(asr_chars) else prev_end
+        for k in range(i2 - i1):
+            ref_pos = i1 + k
+            if ref_pos < len(ref_chars):
+                ch = ref_chars[ref_pos]
+                if is_punct(ch):
+                    result.append({'char': ch, 'start': prev_end, 'end': prev_end})
+                else:
+                    result.append({'char': ch, 'start': prev_end, 'end': next_start})
     elif tag == 'insert':
         # 原文有，ASR 没有 — 用前后 ASR 时间戳插值
         if result and j1 < len(asr_chars):
