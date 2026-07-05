@@ -249,30 +249,25 @@ if (annotated.length === 0) {
       function highlight(t) {
         const idx = findWordIdx(t);
         if (idx === activeIdx) return;
+        // 用 CSS class 批量切换：移除上一个，添加当前
         if (activeIdx >= 0 && wordEls[activeIdx]) wordEls[activeIdx].el.classList.remove('is-active');
         if (idx >= 0) {
           wordEls[idx].el.classList.add('is-active');
-          // 节流滚动：最多每秒滚动 2 次
+          // 滚动：禁用平滑动画 + 最多每秒 1 次
           const now = Date.now();
-          if (now - lastScrollTime > 500) {
+          if (now - lastScrollTime > 1000) {
             lastScrollTime = now;
-            const el = wordEls[idx].el;
-            const rect = el.getBoundingClientRect();
-            const isMobile = window.innerWidth < 720;
-            const blockMode = isMobile ? 'nearest' : 'center';
-            if (rect.top < 100 || rect.bottom > window.innerHeight * 0.6) {
-              el.scrollIntoView({ behavior: 'smooth', block: blockMode });
-            }
+            wordEls[idx].el.scrollIntoView({ behavior: 'auto', block: 'nearest' });
           }
         }
         activeIdx = idx;
       }
 
-      // 节流 timeupdate：最多每 200ms 跑一次
+      // 节流 timeupdate：最多每 300ms 跑一次（老设备友好）
       let lastTime = 0;
       audio.addEventListener('timeupdate', () => {
         const now = performance.now();
-        if (now - lastTime < 200) return;
+        if (now - lastTime < 300) { cur.textContent = fmt(audio.currentTime); return; }
         lastTime = now;
 
         if (!audio.duration) return;
@@ -411,14 +406,16 @@ if (annotated.length === 0) {
   .story-body__text { white-space: pre-wrap; }
   .story-body .w {
     display: inline-block;
-    transition: all 0.2s;
     border-radius: 3px;
     padding: 1px 0;
+    will-change: background;
+    contain: layout style;
   }
   .story-body .w.is-active {
     background: oklch(95% 0.06 80 / 0.6);
     box-shadow: 0 0 0 2px var(--accent-soft);
     color: var(--fg);
+    transition: none;
   }
   .story-body ruby {
     ruby-align: center;
