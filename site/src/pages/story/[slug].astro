@@ -231,26 +231,50 @@ if (annotated.length === 0) {
       });
 
       let activeIdx = -1;
+      let lastScrollTime = 0;
+
+      // 二分查找当前时间对应的字索引
+      function findWordIdx(t) {
+        let lo = 0, hi = wordEls.length - 1;
+        while (lo <= hi) {
+          const mid = (lo + hi) >>> 1;
+          const w = wordEls[mid];
+          if (t < w.start) hi = mid - 1;
+          else if (t >= w.end) lo = mid + 1;
+          else return mid;
+        }
+        return -1;
+      }
+
       function highlight(t) {
-        const idx = wordEls.findIndex(w => t >= w.start && t < w.end);
+        const idx = findWordIdx(t);
         if (idx === activeIdx) return;
         if (activeIdx >= 0 && wordEls[activeIdx]) wordEls[activeIdx].el.classList.remove('is-active');
         if (idx >= 0) {
           wordEls[idx].el.classList.add('is-active');
-          const el = wordEls[idx].el;
-          const rect = el.getBoundingClientRect();
-          const vh = window.innerHeight;
-          // 自动滚动到当前字
-          const isMobile = window.innerWidth < 720;
-          const blockMode = isMobile ? 'nearest' : 'center';
-          if (rect.top < 100 || rect.bottom > vh * 0.6) {
-            el.scrollIntoView({ behavior: 'smooth', block: blockMode });
+          // 节流滚动：最多每秒滚动 2 次
+          const now = Date.now();
+          if (now - lastScrollTime > 500) {
+            lastScrollTime = now;
+            const el = wordEls[idx].el;
+            const rect = el.getBoundingClientRect();
+            const isMobile = window.innerWidth < 720;
+            const blockMode = isMobile ? 'nearest' : 'center';
+            if (rect.top < 100 || rect.bottom > window.innerHeight * 0.6) {
+              el.scrollIntoView({ behavior: 'smooth', block: blockMode });
+            }
           }
         }
         activeIdx = idx;
       }
 
+      // 节流 timeupdate：最多每 200ms 跑一次
+      let lastTime = 0;
       audio.addEventListener('timeupdate', () => {
+        const now = performance.now();
+        if (now - lastTime < 200) return;
+        lastTime = now;
+
         if (!audio.duration) return;
         const pct = (audio.currentTime / audio.duration) * 100;
         fill.style.width = pct + '%';
