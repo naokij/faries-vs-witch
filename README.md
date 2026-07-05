@@ -8,7 +8,7 @@
 faries-vs-witch/
 ├── assets/              ← 图片（角色立绘、banner、封面）
 │   ├── banners/         ← 网站横幅
-│   ├── characters/      ← 角色立绘（16 位角色）
+│   ├── characters/      ← 角色立绘（18 位角色）
 │   └── covers/          ← 各集封面（1:1 正方形）
 ├── audio/               ← 配音 mp3（MiniMax TTS 生成）
 ├── stories/             ← 故事正文 markdown
@@ -16,7 +16,7 @@ faries-vs-witch/
 ├── site/                ← Astro 7 网站源码
 │   ├── public/          ← 构建时自动同步 assets/ + audio/
 │   ├── src/
-│   │   ├── data/        ← episodes.ts + characters.ts
+│   │   ├── data/        ← episodes.ts + characters.ts + asr/*.aligned.json
 │   │   ├── pages/       ← 7 个页面
 │   │   └── styles/      ← 设计系统 CSS
 │   ├── scripts/         ← sync-assets.sh 同步资源
@@ -115,6 +115,40 @@ npm run dev -- --host        # 局域网预览 http://192.168.x.x:4321
 ### 3. 部署
 `site/dist/` 是纯静态文件，可直接部署到任意静态托管服务。
 
+### 4. 预告模式（status: 'soon'）
+
+新集可以先以预告状态上线——在列表中显示封面和简介，但点击进去显示"敬请期待"页面，不能听也不能看内容。
+
+```ts
+// site/src/data/episodes.ts
+{
+  slug: '7-新集',
+  number: 7,
+  title: '新集标题',
+  status: 'soon',        // ← 预告状态，列表可见但内容锁定
+  cover: '/assets/covers/7-新集.jpg',
+  // audio 可以先写上，上线时才会用到
+}
+```
+
+- 故事列表：显示封面 + "敬请期待"标签 + 灰色"尚未上线"按钮
+- 故事页：显示封面 + "本集尚未上线"提示，不渲染播放器和正文
+- 上线：把 `status` 改为 `'online'`，推送即可
+
+### 5. 首页人物展示
+
+首页的人物卡片列表在 `site/src/pages/index.astro` 的 `featuredChars` 数组中硬编码了角色 ID。新增角色时需要手动加入：
+
+```ts
+const featuredChars = characters.filter(c =>
+  ['amalia', 'mengmeng', ..., 'kiki', 'lanlan'].includes(c.id)
+);
+```
+
+### 6. 故事列表封面
+
+`site/src/pages/story-list.astro` 中所有集数统一用 `<img src={ep.cover}>` 渲染封面。如果新集封面图片没放到位，会显示空白。
+
 ## 故事列表
 
 | 集 | 标题 | 时长 | 状态 |
@@ -123,6 +157,8 @@ npm run dev -- --host        # 局域网预览 http://192.168.x.x:4321
 | EP.02 | 植物梦幻仙子 | 11 分 | ✅ 已上线 |
 | EP.03 | 白雪仙子 | 13 分 | ✅ 已上线 |
 | EP.04 | 恶魔王大战斗 | 10 分 | ✅ 已上线 |
+| EP.05 | 仙子朋友的故事 | 12 分 | 🔒 敬请期待 |
+| EP.06 | 仙子交了新朋友的故事 | 10 分 | 🔒 敬请期待 |
 
 ## 数据流程
 
@@ -139,11 +175,37 @@ site/public/          ← 资源同步（prebuild 自动 cp）
 site/dist/            ← Astro 构建输出（纯静态 HTML）
 ```
 
+## 踩坑记录（EP5/EP6 开发）
+
+### 1. ASR 数据加载失败
+**问题**：`import.meta.glob('../../data/asr/*.json')` 在构建时无法访问 `src/` 目录以外的文件，导致 `data-words="[]"`，逐字高亮不工作。
+**解决**：改用 `fs.readFileSync` 在 Astro frontmatter 中直接读取 JSON 文件。
+
+### 2. 拼音只显示注音没有汉字
+**问题**：`pinyin-pro` 的 `type: 'string'` 模式只返回拼音字符串（如 `"è mó wáng"`），不包含原汉字。正则替换匹配不到，导致页面只显示拼音。
+**解决**：改用 `type: 'array'` 逐字获取拼音，再与原文字一一配对生成 `<ruby>` 标签。
+
+### 3. Cloudflare Pages 导航高亮错误
+**问题**：本地 dev server 的 URL 不带尾部斜杠（`/story-list`），但 Cloudflare Pages 会加尾部斜杠（`/story-list/`）。`location.pathname.split('/').pop()` 对带斜杠的路径返回空字符串，导致匹配失败。
+**解决**：先 `replace(/\/+$/, '')` 去掉尾部斜杠再比较。同时对故事子页面做前缀匹配（`/story/5-xxx` 应匹配"故事列表"标签）。
+
+### 4. 故事列表封面不显示
+**问题**：`story-list.astro` 中有 `ep.number <= 4` 的硬编码条件，只给前 4 集渲染 `<img>` 封面，后续集数用文字占位。
+**解决**：去掉条件判断，所有集数统一渲染封面图。
+
+### 5. 首页人物列表遗漏
+**问题**：`index.astro` 的 `featuredChars` 数组硬编码了角色 ID 列表，新增角色需要手动加入。
+**解决**：新增角色时记得更新 `featuredChars` 数组。
+
+### 6. 故事连续性
+**问题**：新集故事和前一集的剧情衔接需要注意。例如第四集结尾 Kiki 已经来到仙子村，第五集不能又写"第一次遇到 Kiki"。
+**建议**：写新集前先回顾前一集结尾，确保人物关系、地点、事件的连续性。
+
 ## 设计系统
 
 参照 `brand-spec.md`：暖米黄纸感底色 `oklch(97% 0.018 80)`，一角色一颜色标签，所有颜色用 OKLch 色空间，圆角柔和，适合 6 岁读者。
 
-## 角色（16 位）
+## 角色（18 位）
 
 | 角色 | 身份 | 登场 |
 |------|------|------|
@@ -163,3 +225,4 @@ site/dist/            ← Astro 构建输出（纯静态 HTML）
 | 恶魔王 | 反派魔王 | EP.04 |
 | 女蝙蝠侠 | 反派战士 | EP.04 |
 | Kiki | 三花猫仙子 | EP.04 |
+| 兰兰 | 西兰花仙子 | EP.06 |
