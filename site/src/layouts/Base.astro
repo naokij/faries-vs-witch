@@ -59,11 +59,15 @@ const { title = '仙女大战女巫 · 森林仙子村有声绘本', description
       });
 
       // 高亮当前导航
-      const path = location.pathname.split('/').pop() || '';
+      const pathname = location.pathname.replace(/\/+$/, '') || '/';
       document.querySelectorAll<HTMLAnchorElement>('.site-nav__link').forEach(a => {
-        const href = a.getAttribute('href')?.replace(/\/$/, '') || '';
-        if ((path === '' && href === '') || (path && href.endsWith(path))) {
+        const href = (a.getAttribute('href') || '').replace(/\/+$/, '') || '/';
+        if (pathname === href || (href !== '/' && pathname.startsWith(href + '/'))) {
+          a.classList.add('is-active');
           a.setAttribute('aria-current', 'page');
+        } else {
+          a.classList.remove('is-active');
+          a.removeAttribute('aria-current');
         }
       });
     </script>
