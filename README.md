@@ -86,34 +86,59 @@ python3 site/scripts/align-asr.py \
 
 ## 日常更新
 
-### 1. 加新故事
+### 1. 写故事 + 配图
 ```bash
-# 写故事正文
+# 写故事正文（markdown）
 编辑 stories/5-新集.md
 
-# 配图 → 放到 assets/covers/ 和 assets/characters/
-
-# 配音 → 放到 audio/
-mmx speech synthesize --text "$(cat story.txt)" --voice "Chinese (Mandarin)_Cute_Spirit"
-
-# 更新网站数据
-编辑 site/src/data/episodes.ts   # 加新集信息
-编辑 site/src/data/characters.ts # 更新角色（如有新增）
-
-# 生成 ASR 时间戳 + 对齐
-bash site/scripts/asr.sh audio/5-新集.mp3
-python3 site/scripts/align-asr.py stories/5-新集.md site/data/asr/5-新集.json site/data/asr/5-新集.aligned.json
+# 配图
+# 封面 → assets/covers/5-新集.jpg（1:1 正方形）
+# 角色立绘 → assets/characters/（如有新增角色）
 ```
 
-### 2. 构建网站
+### 2. 配音（TTS）
+```bash
+cd site
+mmx speech synthesize \
+  --text-file ../stories/5-新集.md \
+  --voice "Chinese (Mandarin)_Cute_Spirit" \
+  --language zh \
+  --out ../audio/5-新集.mp3
+```
+
+### 3. ASR 逐字时间戳
+没有 ASR 数据，播放时不会逐字高亮，拼音也会从 ASR 回退到 pinyin-pro 实时生成（质量较低）。
+```bash
+cd site
+# 3a) Whisper 识别 → data/asr/5-新集.json
+bash scripts/asr.sh ../audio/5-新集.mp3
+
+# 3b) 对齐到原文 → data/asr/5-新集.aligned.json
+python3 scripts/align-asr.py \
+  ../stories/5-新集.md \
+  data/asr/5-新集.json \
+  data/asr/5-新集.aligned.json
+```
+
+### 4. 更新网站数据
+```bash
+编辑 site/src/data/episodes.ts   # 新集信息（slug、title、cover、audio、status）
+编辑 site/src/data/characters.ts # 新角色（如有）
+编辑 site/src/pages/index.astro  # featuredChars 数组（如有新角色）
+```
+
+### 5. 构建 & 预览
 ```bash
 cd site
 npm run build                # 输出到 dist/
-npm run dev -- --host        # 局域网预览 http://192.168.x.x:4321
+npx astro dev --background   # 本地预览 http://localhost:4321
 ```
 
-### 3. 部署
-`site/dist/` 是纯静态文件，可直接部署到任意静态托管服务。
+### 6. 部署
+```bash
+git add -A && git commit -m "✨ 新集上线" && git push
+```
+推送到 `master` 后 Cloudflare Pages 自动构建部署。
 
 ### 4. 预告模式（status: 'soon'）
 
