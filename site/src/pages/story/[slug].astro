@@ -268,6 +268,8 @@ if (annotated.length > 0) {
       let isMobile = window.innerWidth < 720;
       let vh = window.innerHeight;
       let asideBottom = asideEl ? asideEl.getBoundingClientRect().bottom : 56;
+      // 缓存 sticky aside 相对文档的偏移：resize 后页面布局变化，但 aside 在视口顶部
+      // 的固定高度不随正文滚动改变，复用即可，避免每次滚动都调 getBoundingClientRect。
       window.addEventListener('resize', () => {
         isMobile = window.innerWidth < 720;
         vh = window.innerHeight;
@@ -324,24 +326,34 @@ if (annotated.length > 0) {
         if (idx >= 0) {
           wordEls[idx].el.classList.add('is-active');
           // 滚动：禁用平滑动画 + 最多每秒 1 次
+          // 关键：用 offsetTop（静态布局值）替代 getBoundingClientRect（强制 reflow），
+          // 避免每次高亮都读 DOM 几何造成 layout thrashing，这是老 iPad 卡顿主因。
           const now = Date.now();
           if (now - lastScrollTime > 1000) {
             const el = wordEls[idx].el;
-            const rect = el.getBoundingClientRect();
+            const elTop = el.offsetTop; // 相对 offsetParent，不触发 reflow
+            // offsetTop 是相对 offsetParent 的，转成相对文档顶部的近似值：
+            // 正文的 offsetParent 是 .story-body，其顶部 = window.scrollY + 正文视口顶
+            // 这里直接用 elTop 与当前滚动位置做比较，省去 getBoundingClientRect
+            const viewTop = window.scrollY;
+            const viewBottom = viewTop + vh;
             if (isMobile) {
               // 移动端：字偏离目标位置才滚动
               const target = Math.min(asideBottom + 24, vh - 120);
-              if (Math.abs(rect.top - target) > 30) {
+              const elViewportTop = elTop - viewTop; // 字在视口中的近似 Y
+              if (Math.abs(elViewportTop - target) > 30) {
                 lastScrollTime = now;
-                window.scrollTo({ top: window.scrollY + rect.top - target, behavior: 'auto' });
+                window.scrollTo({ top: elTop - target, behavior: 'auto' });
               }
             } else {
               // 桌面端/iPad：字在视口可见区域内不滚动，接近边缘才滚到中间
               // 大幅减少滚动频率，避免 iPad 性能问题
               const margin = 120;
-              if (rect.top < margin || rect.bottom > vh - margin) {
+              const elViewportTop = elTop - viewTop;
+              const elViewportBottom = elViewportTop + (el.offsetHeight || 24);
+              if (elViewportTop < margin || elViewportBottom > vh - margin) {
                 lastScrollTime = now;
-                window.scrollTo({ top: window.scrollY + rect.top - vh * 0.5, behavior: 'auto' });
+                window.scrollTo({ top: elTop - vh * 0.5, behavior: 'auto' });
               }
             }
           }
@@ -359,8 +371,9 @@ if (annotated.length > 0) {
 
         if (!audio.duration) return;
         const t = audio.currentTime;
-        const pct = (t / audio.duration) * 100;
-        fill.style.width = pct + '%';
+        // 进度条用 transform: scaleX 替代 width，走合成层不触发 reflow
+        const pct = t / audio.duration;
+        fill.style.transform = 'scaleX(' + pct + ')';
         const sec = Math.floor(t);
         if (sec !== lastDisplayedSec) {
           lastDisplayedSec = sec;
@@ -452,10 +465,11 @@ if (annotated.length > 0) {
   }
   .story-player__bar-fill {
     height: 100%;
-    width: 0;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: left center;
     background: linear-gradient(90deg, var(--accent), var(--c-lavender));
     border-radius: var(--r-pill);
-    transition: width 0.1s linear;
   }
   .story-player__time {
     display: flex;
@@ -500,12 +514,12 @@ if (annotated.length > 0) {
     display: inline-block;
     border-radius: 3px;
     padding: 1px 0;
-    will-change: background;
     contain: layout style;
   }
   .story-body .w.is-active {
     background: oklch(95% 0.06 80 / 0.6);
-    box-shadow: 0 0 0 2px var(--accent-soft);
+    outline: 2px solid var(--accent-soft);
+    outline-offset: -1px;
     color: var(--fg);
     transition: none;
   }
