@@ -16,32 +16,11 @@
   src: url('/fonts/tssqApdaRQokwFjFJjvM6h2Wo4z1oXk.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Noto Sans SC';
+  font-family: 'LXGW WenKai';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/k3kXo84MPvpLmixcA63oeALhLIiP-Q8.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Noto Sans SC';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/fonts/k3kXo84MPvpLmixcA63oeALhLIiP-Q8.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Noto Sans SC';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('/fonts/k3kXo84MPvpLmixcA63oeALhLIiP-Q8.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Noto Sans SC';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/k3kXo84MPvpLmixcA63oeALhLIiP-Q8.woff2') format('woff2');
+  src: url('/fonts/lxgw-wenkai.ttf') format('truetype');
 }
 @font-face {
   font-family: 'Ma Shan Zheng';
@@ -83,7 +62,7 @@
 
   /* 字体 */
   --font-display: 'ZCOOL KuaiLe', 'Ma Shan Zheng', 'PingFang SC', system-ui, sans-serif;
-  --font-body:    'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', system-ui, sans-serif;
+  --font-body:    'LXGW WenKai', 'PingFang SC', 'Hiragino Sans GB', system-ui, sans-serif;
   --font-mono:    ui-monospace, 'JetBrains Mono', Menlo, monospace;
 
   /* 圆角 */
