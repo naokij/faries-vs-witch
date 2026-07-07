@@ -62,7 +62,7 @@
 
   /* 字体 */
   --font-display: 'ZCOOL KuaiLe', 'Ma Shan Zheng', 'PingFang SC', system-ui, sans-serif;
-  --font-body:    'LXGW WenKai', 'STKaiti', 'KaiTi', 'PingFang SC', 'Hiragino Sans GB', system-ui, sans-serif;
+  --font-body:    'LXGW WenKai', 'Kai', 'STKaiti', '华文楷体', '楷体', 'PingFang SC', 'Hiragino Sans GB', system-ui, sans-serif;
   --font-mono:    ui-monospace, 'JetBrains Mono', Menlo, monospace;
 
   /* 圆角 */
