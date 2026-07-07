@@ -20,5 +20,13 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
+# build-generated assets (synced by sync-assets.sh)
+public/assets/
+public/audio/
+
+# Playwright artifacts
+.playwright-cli/
+*.png
+
 # jetbrains setting folder
 .idea/
