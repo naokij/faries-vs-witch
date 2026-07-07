@@ -3,7 +3,7 @@ import Base from '~/layouts/Base.astro';
 import { episodes } from '~/data/episodes';
 import { characters } from '~/data/characters';
 
-const featuredChars = characters.filter(c => ['amalia', 'mengmeng', 'miaomiao', 'youyou', 'bingbing', 'huohuo', 'yueyue', 'jingjing', 'rongrong', 'kukeduo', 'jianjian', 'baobao', 'kiki', 'lanlan', 'witch'].includes(c.id));
+const featuredChars = characters.filter(c => ['amalia', 'mengmeng', 'miaomiao', 'youyou', 'bingbing', 'huohuo', 'yueyue', 'jingjing', 'rongrong', 'kukeduo', 'jianjian', 'baobao', 'kiki', 'lanlan', 'witch', 'cuicui', 'tongtong', 'nini', 'keke', 'mmiaomiao', 'caicai', 'honghong', 'crystaljj'].includes(c.id));
 
 const onlineEps = episodes.filter(e => e.status === 'online');
 const latest = onlineEps[onlineEps.length - 1];
@@ -34,7 +34,7 @@ const activeEpisodes = episodes.filter(e => e.status === 'online');
         </div>
         <div>
           <div class="flex gap-2" style="flex-wrap: wrap;">
-            <span class={`tag tag--${latest.color}`}><span class="tag__dot"></span>{latest.title}</span>
+            <span class={`tag tag--${latest.color}`}><span class="tag__dot"></span>{latest.subtitle}</span>
             <span class="tag tag--accent"><span class="tag__dot"></span>EP.{String(latest.number).padStart(2, '0')} · 已上线</span>
           </div>
           <h3 style="margin-top: var(--s-3); font-size: 26px;">{latest.title}</h3>
