@@ -320,6 +320,43 @@ export const episodes: Episode[] = [
       },
     ],
     charactersInScene: ['amalia', 'tongtong', 'cuicui', 'nini', 'keke', 'mmiaomiao', 'caicai', 'honghong', 'crystaljj', 'zombie', 'zombie_gf', 'jianjian', 'rongrong', 'bingbing', 'huohuo', 'mengmeng', 'miaomiao', 'youyou'],
+    next: { title: '冰火能量回归', status: 'online' },
+  },
+  {
+    slug: '9-冰火能量回归',
+    number: 9,
+    title: '冰火能量回归',
+    subtitle: '四人联手大冒险',
+    duration: '约 12 分钟',
+    status: 'online',
+    cover: '/assets/covers/9-冰火能量回归.jpg',
+    audio: '/audio/9-冰火能量回归.mp3',
+    color: 'leaf',
+    excerpt: '恶魔王和女蝙蝠侠又来了！冰冰和火火的魔法还没有恢复，Kiki和兰兰站了出来。她们用猫咪守护魔法和蔬菜守护魔法唤醒了冰冰和火火沉睡的魔法力量，四个人一起打败了恶魔王和女蝙蝠侠！库克多赶来庆祝冰火魔法回归。',
+    intro: '冰冰和火火的魔法还没有恢复，恶魔王和女蝙蝠侠又来了——',
+    scenes: [
+      {
+        illust: '/assets/characters/冰仙子-冰冰.jpg',
+        title: '冰火的失落',
+        body: '冰冰和火火坐在池塘边发呆。自从第四集被恶魔王的毒液腐蚀后，她们的冰系魔法和火系魔法到现在还没有恢复。',
+      },
+      {
+        illust: '/assets/characters/三花猫仙子-Kiki.jpg',
+        title: 'Kiki和兰兰来访',
+        body: 'Kiki从猫咪王国带来了甜甜的豆包，兰兰从蔬菜王国带来了新鲜的西兰花。她们握住了冰冰和火火的手说："好朋友就要互相帮助！"',
+      },
+      {
+        illust: '/assets/characters/恶魔王.jpg',
+        title: '恶魔王再袭',
+        body: '恶魔王和女蝙蝠侠又来了！Kiki释放猫咪守护魔法，兰兰释放蔬菜守护魔法。两道光芒不仅挡住了恶魔王，还唤醒了冰冰和火火体内沉睡的魔法力量！',
+      },
+      {
+        illust: '/assets/characters/火仙子-火火.jpg',
+        title: '冰火魔法回归',
+        body: '冰冰的冰之力和火火的火之力回来了！四道光芒汇聚成巨龙，打败了恶魔王和女蝙蝠侠。健健用墓碑牢笼关住了他们。库克多赶来庆祝冰火魔法回归！',
+      },
+    ],
+    charactersInScene: ['amalia', 'bingbing', 'huohuo', 'kiki', 'lanlan', 'demon', 'batwoman', 'rongrong', 'jianjian', 'kukeduo', 'cuicui', 'tongtong', 'mengmeng', 'miaomiao', 'youyou'],
   },
 ];
 

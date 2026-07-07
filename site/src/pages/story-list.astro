@@ -29,21 +29,14 @@ import { episodes } from '~/data/episodes';
                 <img src={ep.cover} alt={ep.title + '封面'} loading="lazy" />
               </div>
             </a>
-            <div class="card__body">
-              <div class="flex gap-2 mb-2" style="flex-wrap: wrap;">
-                {ep.status === 'online' ? (
-                  <>
-                    <span class="tag tag--accent">EP.{String(ep.number).padStart(2, '0')} · 已上线</span>
-                    <span class={`tag tag--${ep.color}`}>{ep.subtitle}</span>
-                  </>
-                ) : (
-                  <>
-                    <span class="tag">EP.{String(ep.number).padStart(2, '0')} · 敬请期待</span>
-                  </>
-                )}
+            <div class="card__body episode-card__body">
+              <div class="episode-card__head">
+                <div class="card__info">
+                  <span class={`tag ${ep.status === 'online' ? 'tag--accent' : 'tag--soon'}`}>EP.{String(ep.number).padStart(2, '0')}</span>
+                </div>
+                <h3 class="card__title">{ep.title}</h3>
+                <p class="card__meta">{ep.subtitle} · {ep.duration}</p>
               </div>
-              <h3 class="card__title">{ep.title}</h3>
-              <p class="card__meta">{ep.subtitle} · {ep.duration}</p>
               <div class="card__cta">
                 {ep.status === 'online' ? (
                   <a href={`/story/${ep.slug}`} class="btn btn--primary btn--sm">

@@ -2,6 +2,8 @@
 
 Children's audio picture book site (Astro 7). Daughter provides story ideas/voiceover; parent handles engineering.
 
+**Current state:** 9 episodes online. Latest: 冰火能量回归 (EP.09).
+
 ## Repo layout
 
 - `stories/*.md` — story manuscripts (markdown, Chinese)
@@ -11,6 +13,14 @@ Children's audio picture book site (Astro 7). Daughter provides story ideas/voic
 - `site/public/` — generated at build time by `sync-assets.sh` (copies root `assets/` + `audio/`)
 
 Assets live at repo root, NOT in `site/`. The `prebuild`/`predev` scripts sync them into `site/public/`.
+
+## Naming convention
+
+- `stories/N-标题.md` — story filename slug (matches `episodes.ts` `slug` field)
+- `audio/N-标题.mp3` — TTS output filename
+- `assets/covers/N-标题.jpg` — 1:1 cover art
+
+**Important:** All three filenames must use the SAME slug. Renaming a story requires renaming the audio + cover + episode entry together.
 
 ## Commands
 
