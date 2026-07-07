@@ -1,5 +1,6 @@
 ---
 import '~/styles/shared.css';
+import { episodes } from '~/data/episodes';
 
 interface Props {
   title?: string;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 const { title = '仙子大战女巫 · 森林仙子村有声绘本', description = '6岁女儿的睡前故事，森林仙子大战黑暗女巫的奇幻冒险。', active = 'home' } = Astro.props;
+const onlineCount = episodes.filter(e => e.status === 'online').length;
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -45,7 +47,7 @@ const { title = '仙子大战女巫 · 森林仙子村有声绘本', description
 
     <footer class="site-footer">
       <p>森林仙子村 · 仙子大战女巫</p>
-      <p class="text-muted">由 6 岁的小橘子口述，爸爸记录整理 · 共 6 集有声绘本</p>
+      <p class="text-muted">由 6 岁的小橘子口述，爸爸记录整理 · 共 {onlineCount} 集有声绘本</p>
       <p class="text-muted" style="margin-top: 6px; font-size: 12px;">
         <a href="https://github.com/naokij/faries-vs-witch" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">GitHub →</a>
       </p>
