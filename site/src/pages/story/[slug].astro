@@ -361,17 +361,42 @@ if (annotated.length > 0) {
         activeIdx = idx;
       }
 
-      // 节流 timeupdate：最多每 300ms 跑一次（老设备友好）
-      let lastTime = 0;
+      // 高亮用 requestAnimationFrame 驱动（每帧 ~16ms），比 timeupdate（~250ms）精确得多
+      // 避免 300ms 节流导致跳字
+      let rafId = null;
       let lastDisplayedSec = -1;
+      function highlightLoop() {
+        if (!audio.paused && !audio.ended && audio.duration) {
+          const t = audio.currentTime;
+          // 进度条用 transform: scaleX 替代 width，走合成层不触发 reflow
+          const pct = t / audio.duration;
+          fill.style.transform = 'scaleX(' + pct + ')';
+          const sec = Math.floor(t);
+          if (sec !== lastDisplayedSec) {
+            lastDisplayedSec = sec;
+            cur.textContent = fmt(t);
+          }
+          highlight(t);
+        }
+        rafId = requestAnimationFrame(highlightLoop);
+      }
+      function startHighlight() { if (!rafId) highlightLoop(); }
+      function stopHighlight() { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
+
+      // 页面不可见时暂停高亮循环，节省电量
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stopHighlight();
+        else if (!audio.paused) startHighlight();
+      });
+
+      // timeupdate 仅用于进度条更新（备用，避免 rAF 停止时进度条卡住）
+      let lastTime = 0;
       audio.addEventListener('timeupdate', () => {
         const now = performance.now();
         if (now - lastTime < 300) return;
         lastTime = now;
-
         if (!audio.duration) return;
         const t = audio.currentTime;
-        // 进度条用 transform: scaleX 替代 width，走合成层不触发 reflow
         const pct = t / audio.duration;
         fill.style.transform = 'scaleX(' + pct + ')';
         const sec = Math.floor(t);
@@ -379,15 +404,14 @@ if (annotated.length > 0) {
           lastDisplayedSec = sec;
           cur.textContent = fmt(t);
         }
-        highlight(t);
       });
       audio.addEventListener('loadedmetadata', () => {
         dur.textContent = fmt(audio.duration);
         setState('ready', '点击播放');
       });
-      audio.addEventListener('play', () => { setPlayingUI(true); setState('playing', '正在播放'); });
-      audio.addEventListener('pause', () => { setPlayingUI(false); setState('ready', '已暂停'); });
-      audio.addEventListener('ended', () => { setPlayingUI(false); setState('ready', '本集已播完'); });
+      audio.addEventListener('play', () => { setPlayingUI(true); setState('playing', '正在播放'); startHighlight(); });
+      audio.addEventListener('pause', () => { setPlayingUI(false); setState('ready', '已暂停'); stopHighlight(); });
+      audio.addEventListener('ended', () => { setPlayingUI(false); setState('ready', '本集已播完'); stopHighlight(); });
       audio.addEventListener('error', () => { setPlayingUI(false); setState('error', '音频加载失败'); });
 
       speedBtns.forEach(b => {
