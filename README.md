@@ -74,11 +74,14 @@ mmx speech synthesize \
 whisper audio/5-新集.mp3 --language Chinese --model tiny \
   --word_timestamps True --output_format json
 
-# 2) 对齐到原文（繁简转换 + 错字修正）
+# 2) 对齐到原文（拼音空间对齐：同音字自动修正）
 python3 site/scripts/align-asr.py \
   stories/5-新集.md \
   data/asr/5-新集.json \
   data/asr/5-新集.aligned.json
+
+# 3) 校验时间戳质量（0 ERROR 才能上线）
+cd site && npm run check:asr
 ```
 
 ### 拼音标注
@@ -118,6 +121,9 @@ python3 scripts/align-asr.py \
   ../stories/5-新集.md \
   data/asr/5-新集.json \
   data/asr/5-新集.aligned.json
+
+# 3c) 校验时间戳质量（0 ERROR 才能上线）
+npm run check:asr
 ```
 
 ### 4. 更新网站数据

@@ -31,6 +31,7 @@ npx astro dev --background   # start dev server (background)
 npx astro dev stop            # stop it
 npx astro dev status          # check if running
 npm run build                 # build to dist/
+npm run check:asr             # validate ASR aligned data (run after regenerating ASR)
 ```
 
 ## Adding a new episode — exact order
@@ -41,12 +42,13 @@ npm run build                 # build to dist/
 4. TTS: `mmx speech synthesize --text-file stories/N-标题.md --voice "Chinese (Mandarin)_Cute_Spirit" --language zh --out audio/N-标题.mp3`
 5. ASR step A: `cd site && bash scripts/asr.sh ../audio/N-标题.mp3` → `data/asr/N-标题.json`
 6. ASR step B: `python3 scripts/align-asr.py ../stories/N-标题.md data/asr/N-标题.json data/asr/N-标题.aligned.json`
-7. Edit `site/src/data/episodes.ts` — add episode entry
-8. Edit `site/src/data/characters.ts` — add new characters if any
-9. Edit `site/src/pages/index.astro` — add character IDs to `featuredChars` array if new characters
-10. Build & preview: `npm run build && npx astro dev --background`
+7. Validate: `npm run check:asr` - must show 0 ERROR before publishing. WARN (TIME_REVERSE/ZERO_SPAN_HANZI) is acceptable.
+8. Edit `site/src/data/episodes.ts` - add episode entry
+9. Edit `site/src/data/characters.ts` - add new characters if any
+10. Edit `site/src/pages/index.astro` - add character IDs to `featuredChars` array if new characters
+11. Build & preview: `npm run build && npx astro dev --background`
 
-Steps 5-6 are required — without ASR data, no per-character highlighting during playback.
+Steps 5-7 are required — without ASR data, no per-character highlighting during playback. Step 7 catches highlight bugs (duplicate timestamps, title audio misalignment, tiny spans) before they reach users.
 
 ## Technical gotchas
 
