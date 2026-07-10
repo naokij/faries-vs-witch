@@ -786,7 +786,7 @@ p  { margin: 0; }
 }
 
 /* ============================================================
-   模态：角色详情面板
+   模态：角色详情面板 (双栏 720px + 大图 + 出场列表 + 上下导航)
    ============================================================ */
 .modal {
   position: fixed;
@@ -809,14 +809,18 @@ p  { margin: 0; }
 .modal__panel {
   background: var(--surface);
   border-radius: var(--r-xl);
-  max-width: 520px;
+  max-width: 720px;
   width: 100%;
   max-height: 90vh;
-  overflow: auto;
+  /* 外框不滚动:用 flex 让 grid 与 nav 自行负责溢出 */
+  overflow: hidden;
   padding: var(--s-6);
   box-shadow: var(--shadow-lg);
   transform: translateY(20px);
   transition: transform 0.25s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 .modal[aria-hidden="false"] .modal__panel { transform: translateY(0); }
 .modal__close {
@@ -831,36 +835,69 @@ p  { margin: 0; }
   color: var(--muted);
   display: grid;
   place-items: center;
+  z-index: 2;
 }
 .modal__close:hover { background: var(--border); color: var(--fg); }
 
-.modal__portrait {
-  width: 160px; height: 160px;
-  margin: 0 auto var(--s-4);
+/* 双栏布局:左大图 + 右信息 */
+.modal__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: var(--s-6);
+  align-items: start;
+  min-height: 0; /* flex 子项允许收缩 */
+  flex: 1 1 auto;
+}
+
+.modal__hero {
   border-radius: var(--r-lg);
   overflow: hidden;
   background: var(--surface-2);
+  aspect-ratio: 1 / 1;
+  box-shadow: var(--shadow-sm);
 }
-.modal__portrait img { width: 100%; height: 100%; object-fit: cover; }
+.modal__hero img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.modal__info {
+  min-width: 0;
+  /* 右列内容溢出时,仅右列内部滚动,外框不出现滚动条 */
+  overflow-y: auto;
+  max-height: 100%;
+  padding-right: var(--s-2); /* 给滚动条留出空间 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.modal__info::-webkit-scrollbar { width: 6px; }
+.modal__info::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+.modal__info::-webkit-scrollbar-track { background: transparent; }
+.modal__info .tag { margin-bottom: var(--s-3); }
 .modal__name {
   font-family: var(--font-display);
-  font-size: 28px;
-  text-align: center;
-  margin-bottom: var(--s-2);
-}
-.modal__role {
-  text-align: center;
-  margin-bottom: var(--s-5);
+  font-size: 32px;
+  line-height: 1.15;
+  margin: 0 0 var(--s-3);
+  color: var(--fg);
 }
 .modal__row {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-3);
   padding: var(--s-3) 0;
   border-top: 1px dashed var(--border);
   font-size: 14px;
 }
-.modal__row dt { color: var(--muted); }
-.modal__row dd { margin: 0; color: var(--fg); font-weight: 500; }
+.modal__row dt { color: var(--muted); flex-shrink: 0; }
+.modal__row dd { margin: 0; color: var(--fg); font-weight: 500; text-align: right; }
+.modal__row dd a { color: var(--accent-strong); text-decoration: none; }
+.modal__row dd a:hover { text-decoration: underline; }
 .modal__bio {
   margin-top: var(--s-4);
   padding-top: var(--s-4);
@@ -868,6 +905,112 @@ p  { margin: 0; }
   font-size: 15px;
   line-height: 1.7;
   color: var(--fg-soft);
+}
+
+/* 出场剧集列表 */
+.modal__appearances {
+  margin-top: var(--s-5);
+  padding-top: var(--s-4);
+  border-top: 1px dashed var(--border);
+}
+.modal__appearances h4 {
+  font-family: var(--font-display);
+  font-size: 16px;
+  margin: 0 0 var(--s-3);
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.modal__appearances ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.modal__appearances li a {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-md);
+  background: oklch(96% 0.015 80 / 0.6);
+  text-decoration: none;
+  color: var(--fg);
+  font-size: 14px;
+  transition: background 0.15s;
+}
+.modal__appearances li a:hover { background: oklch(94% 0.02 80); }
+.modal__appearances li .ep-num {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--accent-strong);
+  flex-shrink: 0;
+  min-width: 3em;
+}
+.modal__appearances li .ep-title { flex: 1; }
+.modal__appearances-empty {
+  font-size: 13px;
+  color: var(--muted-soft);
+  font-style: italic;
+}
+
+/* 底部导航:← 上一个 • 计数 • 下一个 → */
+.modal__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0; /* 始终固定在底部 */
+}
+.modal__nav-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: var(--s-2) var(--s-4);
+  font-size: 14px;
+  color: var(--fg-soft);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.modal__nav-btn:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  color: var(--fg);
+}
+.modal__nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.modal__counter {
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 移动端:堆叠为单列,且折叠出场剧集避免与 nav 重叠 */
+@media (max-width: 720px) {
+  .modal__grid {
+    grid-template-columns: 1fr;
+    gap: var(--s-4);
+  }
+  .modal__hero {
+    aspect-ratio: auto;
+    max-height: 40vh;
+    min-height: 200px;
+  }
+  .modal__info {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+  .modal__appearances { display: none; } /* 移动端隐藏,避免与 nav 重叠 */
+  .modal__name { font-size: 26px; }
+  .modal__row { font-size: 13px; }
 }
 
 /* ============================================================
