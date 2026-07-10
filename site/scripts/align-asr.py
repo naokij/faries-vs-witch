@@ -196,7 +196,60 @@ def split_shared_times(entries):
 
 result = split_shared_times(result)
 
-# 7. 输出：丢弃标题部分（_title=True），仅保留正文；compact JSON
+# 7. 后处理：保证汉字最小可高亮窗口。
+# whisper 给某些字的时间戳极短（如 0.02s）甚至零宽，rAF 每帧 ~16ms 会跳过这些窗口，
+# 导致该字永远不被高亮。这里给 span < MIN_SPAN 的汉字从相邻汉字借时间，保证至少
+# MIN_SPAN 秒的可高亮窗口。先从后邻借，不够再从前邻借；借出方仍 >= MIN_SPAN。
+MIN_SPAN = 0.1  # 汉字最小可高亮窗口（秒）
+
+def ensure_min_span(entries):
+    for i, e in enumerate(entries):
+        if is_punct(e['char']) or not is_hanzi_char(e['char']):
+            continue
+        span = e['end'] - e['start']
+        if span >= MIN_SPAN:
+            continue
+        need = MIN_SPAN - span
+        # 先从后邻汉字借（跳过中间的标点找下一个汉字）
+        borrowed = 0
+        nxt = None
+        for j in range(i + 1, len(entries)):
+            if is_hanzi_char(entries[j]['char']):
+                nxt = entries[j]
+                break
+        if nxt is not None:
+            nxt_span = nxt['end'] - nxt['start']
+            can_lend = nxt_span - MIN_SPAN
+            if can_lend > 0:
+                b = min(need, can_lend)
+                e['end'] = e['end'] + b
+                nxt['start'] = nxt['start'] + b
+                borrowed += b
+                need = MIN_SPAN - (e['end'] - e['start'])
+        # 不够再从前邻汉字借
+        if need > 0:
+            prv = None
+            for j in range(i - 1, -1, -1):
+                if is_hanzi_char(entries[j]['char']):
+                    prv = entries[j]
+                    break
+            if prv is not None:
+                prv_span = prv['end'] - prv['start']
+                can_lend = prv_span - MIN_SPAN
+                if can_lend > 0:
+                    b = min(need, can_lend)
+                    e['start'] = e['start'] - b
+                    prv['end'] = prv['end'] - b
+    return entries
+
+
+def is_hanzi_char(c):
+    return '\u4e00' <= c <= '\u9fff'
+
+
+result = ensure_min_span(result)
+
+# 8. 输出：丢弃标题部分（_title=True），仅保留正文；compact JSON
 out = [r for r in result if r['char'].strip() and not r.get('_title')]
 with open(sys.argv[3], 'w', encoding='utf-8') as f:
     json.dump(out, f, ensure_ascii=False, separators=(',', ':'))
