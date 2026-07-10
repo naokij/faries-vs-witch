@@ -399,7 +399,7 @@ export const roleLabelMap: Record<CharacterRole, string> = {
   leader: '仙子首领',
   baby: '宝宝仙子',
   warrior: '小勇士',
-  witch: '反派女巫',
+  witch: '反派',
   ally: '新伙伴',
 };
 
