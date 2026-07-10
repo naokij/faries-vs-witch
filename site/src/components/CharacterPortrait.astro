@@ -1,0 +1,40 @@
+---
+// 人物立绘组件:输出带 srcset 的 <img>,消除大图缩到小卡时的下采样锯齿。
+// 派生变体 (200/400/800) 由 scripts/sync-assets.sh 自动生成在
+// site/public/assets/characters/{stem}-{width}.jpg。
+//
+// Props:
+//   portrait      原图 URL,形如 '/assets/characters/xxx.jpg'
+//   name          alt 文本
+//   sizes         CSS sizes 描述,默认覆盖移动/平板/桌面
+//   loading       'lazy' | 'eager',默认 'lazy'
+//   class         透传给 <img>
+
+interface Props {
+  portrait: string;
+  name: string;
+  sizes?: string;
+  loading?: 'lazy' | 'eager';
+  class?: string;
+}
+
+const {
+  portrait,
+  name,
+  sizes = '(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 240px',
+  loading = 'lazy',
+  class: className,
+} = Astro.props;
+
+const stem = portrait.replace(/\.jpg$/i, '');
+const srcset = `${stem}-200.jpg 200w, ${stem}-400.jpg 400w, ${stem}-800.jpg 800w, ${portrait} 2048w`;
+---
+
+<img
+  src={portrait}
+  srcset={srcset}
+  sizes={sizes}
+  alt={name}
+  loading={loading}
+  class={className}
+/>

@@ -1,5 +1,6 @@
 ---
 import Base from '~/layouts/Base.astro';
+import CharacterPortrait from '~/components/CharacterPortrait.astro';
 import { allCharacters, roleLabelMap } from '~/data/characters';
 
 const total = allCharacters.length;
@@ -46,7 +47,7 @@ const groups = {
             data-portrait={c.portrait}
           >
             <div class="character-card__portrait">
-              <img src={c.portrait} alt={c.name} loading="lazy" />
+              <CharacterPortrait portrait={c.portrait} name={c.name} />
             </div>
             <div class="character-card__name">{c.name}</div>
             <div class="character-card__role">{c.roleLabel} · {c.age}</div>
@@ -106,7 +107,10 @@ const groups = {
       const cards = document.querySelectorAll<HTMLElement>('#char-grid .character-card');
 
       function open(data: any) {
+        const stem = (data.portrait as string).replace(/\.jpg$/i, '');
         imgEl.src = data.portrait;
+        imgEl.srcset = `${stem}-400.jpg 400w, ${stem}-800.jpg 800w, ${data.portrait} 2048w`;
+        imgEl.sizes = '(max-width: 640px) 90vw, 480px';
         imgEl.alt = data.name;
         nameEl.textContent = data.name;
         roleEl.innerHTML = '<span class="tag tag--' + data.role + '"><span class="tag__dot"></span>' + data['roleLabel'] + '</span>';

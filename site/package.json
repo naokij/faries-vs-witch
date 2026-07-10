@@ -18,5 +18,8 @@
   "dependencies": {
     "astro": "^7.0.6",
     "pinyin-pro": "^3.28.1"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.3"
   }
 }
