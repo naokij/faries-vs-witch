@@ -367,6 +367,32 @@ export const characters: Character[] = [
     portrait: '/assets/characters/僵尸魔法师女朋友.jpg',
     debut: '8-美乐蒂仙子彤彤用美乐蒂魔法攻击打败僵尸魔法师和他的女朋友',
   },
+  {
+    id: 'amakesi',
+    name: '阿玛克斯',
+    role: 'leader',
+    roleLabel: '仙子首领',
+    age: '成年',
+    color: 'purple',
+    colorVar: 'var(--c-purple)',
+    power: '光之守护 · 仙子首领',
+    bio: '仙子森林的另一位首领，阿玛利亚的伴侣。橙金色短发、蓝色眼眸、绿色小帽子、绿紫色小套装。一直在远方守护着其他仙子王国，感应到朵朵要出生才通过传送门赶回仙子森林。',
+    portrait: '/assets/characters/仙子首领-阿玛克斯.jpg',
+    debut: '10-仙子首领阿玛克斯',
+  },
+  {
+    id: 'duoduo',
+    name: '朵朵',
+    role: 'baby',
+    roleLabel: '宝宝仙子',
+    age: '3 岁',
+    color: 'dream',
+    colorVar: 'var(--c-dream)',
+    power: '粉元素 · 爱心魔法',
+    bio: '阿玛利亚和阿玛克斯的第四个宝宝仙子。粉棕丸子头、粉色眼眸、粉色洛丽塔小兔裙、粉色小翅膀。第十集从阿玛利亚的肚子里蹦出来，一出生就扑扑扑地扇动小翅膀，虽然飞不高但特别爱飞。三个姐姐梦梦、苗苗和悠悠都抢着要照顾她。',
+    portrait: '/assets/characters/宝宝仙子-朵朵.jpg',
+    debut: '10-仙子首领阿玛克斯',
+  },
 ];
 
 export const roleLabelMap: Record<CharacterRole, string> = {

@@ -357,6 +357,43 @@ export const episodes: Episode[] = [
       },
     ],
     charactersInScene: ['amalia', 'bingbing', 'huohuo', 'kiki', 'lanlan', 'demon', 'batwoman', 'rongrong', 'jianjian', 'kukeduo', 'cuicui', 'tongtong', 'mengmeng', 'miaomiao', 'youyou'],
+    next: { title: '仙子首领阿玛克斯', status: 'online' },
+  },
+  {
+    slug: '10-仙子首领阿玛克斯',
+    number: 10,
+    title: '仙子首领阿玛克斯',
+    subtitle: '新首领和小宝宝',
+    duration: '约 11 分钟',
+    status: 'online',
+    cover: '/assets/covers/10-仙子首领阿玛克斯.jpg',
+    audio: '/audio/10-仙子首领阿玛克斯.mp3',
+    color: 'dream',
+    excerpt: '传送门打开了，走出来的不是坏人，而是仙子森林的另一位首领——阿玛克斯！橙色短发、蓝色眼眸、绿色小帽子。阿玛利亚惊喜地扑进他的怀里。就在这时，阿玛利亚的肚子发光了，一个粉棕丸子头的小宝宝蹦了出来——朵朵！仙子森林有四个宝宝啦！',
+    intro: '传送门慢慢地打开了——是那些反派回来了吗？',
+    scenes: [
+      {
+        illust: '/assets/characters/仙子首领-阿玛利亚.jpg',
+        title: '传送门打开',
+        body: '仙子森林中央突然出现了传送门，阿玛利亚紧张地护住三个宝宝。可是从传送门里走出来的不是坏人，而是仙子森林的另一位首领——阿玛克斯！',
+      },
+      {
+        illust: '/assets/characters/仙子首领-阿玛克斯.jpg',
+        title: '阿玛克斯回归',
+        body: '阿玛克斯是仙子森林的另一位首领，橙色短发、蓝色眼眸、绿色小帽子、绿紫色小套装。他一直在远方守护着其他仙子王国，今天终于通过传送门回到了仙子森林。',
+      },
+      {
+        illust: '/assets/characters/仙子首领-阿玛利亚.jpg',
+        title: '朵朵出生',
+        body: '阿玛利亚的肚子突然发出了粉色的光芒，一个粉棕丸子头的小宝宝从光芒中蹦了出来！她穿着粉色洛丽塔小兔裙，有一对小小的粉色翅膀。阿玛利亚和阿玛克斯惊喜地喊："我们又生小宝宝啦！"',
+      },
+      {
+        illust: '/assets/characters/宝宝仙子-朵朵.jpg',
+        title: '四个宝宝',
+        body: '新宝宝叫朵朵，粉色眼眸像两颗闪闪发光的宝石。她扑扑扑地扇动小翅膀，虽然飞不高但特别爱飞。梦梦、苗苗和悠悠三个姐姐都抢着要照顾她。仙子森林越来越热闹了！',
+      },
+    ],
+    charactersInScene: ['amalia', 'amakesi', 'duoduo', 'mengmeng', 'miaomiao', 'youyou', 'bingbing', 'huohuo', 'kiki', 'lanlan', 'rongrong', 'cuicui', 'tongtong', 'yueyue', 'jingjing', 'jianjian', 'baobao'],
   },
 ];
 

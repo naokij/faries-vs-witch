@@ -3,7 +3,7 @@ import Base from '~/layouts/Base.astro';
 import { episodes } from '~/data/episodes';
 import { characters } from '~/data/characters';
 
-const featuredChars = characters.filter(c => ['amalia', 'mengmeng', 'miaomiao', 'youyou', 'bingbing', 'huohuo', 'yueyue', 'jingjing', 'rongrong', 'kukeduo', 'jianjian', 'baobao', 'kiki', 'lanlan', 'witch', 'cuicui', 'tongtong', 'nini', 'keke', 'mmiaomiao', 'caicai', 'honghong', 'crystaljj'].includes(c.id));
+const featuredChars = characters.filter(c => ['amalia', 'amakesi', 'mengmeng', 'miaomiao', 'youyou', 'duoduo', 'bingbing', 'huohuo', 'yueyue', 'jingjing', 'rongrong', 'kukeduo', 'jianjian', 'baobao', 'kiki', 'lanlan', 'witch', 'cuicui', 'tongtong', 'nini', 'keke', 'mmiaomiao', 'caicai', 'honghong', 'crystaljj'].includes(c.id));
 
 const onlineEps = episodes.filter(e => e.status === 'online');
 const latest = onlineEps[onlineEps.length - 1];
