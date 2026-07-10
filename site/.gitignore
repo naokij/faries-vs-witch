@@ -28,5 +28,8 @@ public/audio/
 .playwright-cli/
 *.png
 
+# Python
+__pycache__/
+
 # jetbrains setting folder
 .idea/

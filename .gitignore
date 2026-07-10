@@ -25,3 +25,6 @@ Thumbs.db
 site/data/asr/*.json
 !site/data/asr/*.aligned.json
 .wrangler/
+
+# ZCode
+.zcode/
