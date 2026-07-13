@@ -2,7 +2,7 @@
 
 Children's audio picture book site (Astro 7). Daughter provides story ideas/voiceover; parent handles engineering.
 
-**Current state:** 10 episodes online. Latest: 仙子首领阿玛克斯 (EP.10).
+**Current state:** 11 episodes online. Latest: 朵朵学飞记 (EP.11).
 
 ## Repo layout
 

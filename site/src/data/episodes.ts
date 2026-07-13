@@ -394,6 +394,43 @@ export const episodes: Episode[] = [
       },
     ],
     charactersInScene: ['amalia', 'amakesi', 'duoduo', 'mengmeng', 'miaomiao', 'youyou', 'bingbing', 'huohuo', 'kiki', 'lanlan', 'rongrong', 'cuicui', 'tongtong', 'yueyue', 'jingjing', 'jianjian', 'baobao'],
+    next: { title: '朵朵学飞记', status: 'online' },
+  },
+  {
+    slug: '11-朵朵学飞记',
+    number: 11,
+    title: '朵朵学飞记',
+    subtitle: '爱心魔法觉醒',
+    duration: '约 10 分钟',
+    status: 'online',
+    cover: '/assets/covers/11-朵朵学飞记.jpg',
+    audio: '/audio/11-朵朵学飞记.mp3',
+    color: 'dream',
+    excerpt: '朵朵的翅膀飞不高，三个姐姐教飞的方法各不相同，吵了起来！朵朵乱飞闯祸——撞进花丛、掉进面粉堆、追着蓉蓉的猫尾巴转圈。最后朵朵发现了自己的爱心魔法，能让枯萎的花重新开放。森林外面出现了神秘的影子……',
+    intro: '阿玛克斯回来了，仙子森林变得比以前更热闹了——可是朵朵有点不开心。',
+    scenes: [
+      {
+        illust: '/assets/characters/宝宝仙子-朵朵.jpg',
+        title: '朵朵学飞',
+        body: '朵朵的翅膀飞不高，扑扑扑飞一下就掉下来。梦梦说要冷静慢慢来，悠悠说要大胆冲冲冲，苗苗说要温柔像小花。三个姐姐吵了起来！',
+      },
+      {
+        illust: '/assets/characters/宝宝仙子-朵朵.jpg',
+        title: '朵朵乱飞闯祸',
+        body: '朵朵被风吹得乱飞——撞进月月的花丛里头上顶着花瓣，掉进包包的面粉堆里变成白毛小宝宝，追着蓉蓉的猫尾巴转圈圈！最后飞到阿玛克斯的帽子上稳稳坐着。',
+      },
+      {
+        illust: '/assets/characters/宝宝仙子-朵朵.jpg',
+        title: '爱心魔法觉醒',
+        body: '朵朵不小心撞到一朵枯萎的小花，她的粉色翅膀发出柔和的粉光，小花重新开放了！阿玛利亚说这叫爱心魔法，能让枯萎的东西恢复生机。月月高兴极了："朵朵可以帮我种花！"',
+      },
+      {
+        illust: '/assets/characters/仙子首领-阿玛利亚.jpg',
+        title: '神秘的影子',
+        body: '晚上大家庆祝朵朵学会飞。突然森林外面传来奇怪的声音——沙沙沙。阿玛克斯飞到森林边缘，看到一个模糊的影子在树丛中一闪而过。"那是谁……"',
+      },
+    ],
+    charactersInScene: ['amalia', 'amakesi', 'duoduo', 'mengmeng', 'miaomiao', 'youyou', 'yueyue', 'rongrong', 'baobao', 'bingbing', 'huohuo'],
   },
 ];
 
