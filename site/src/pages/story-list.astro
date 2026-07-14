@@ -1,6 +1,7 @@
 ---
 import Base from '~/layouts/Base.astro';
 import { episodes } from '~/data/episodes';
+import { assetUrl, assetSrcset } from '~/data/asset-url';
 ---
 <Base title="故事列表 · 仙子大战女巫" active="list">
   <main class="page page--wide">
@@ -28,8 +29,8 @@ import { episodes } from '~/data/episodes';
             <a href={`/story/${ep.slug}`} class="card__media-link">
               <div class="card__media" style="aspect-ratio: 1/1;">
                 <img
-                  src={ep.cover}
-                  srcset={`${stem}-400.jpg 400w, ${stem}-800.jpg 800w, ${stem}-1200.jpg 1200w, ${ep.cover} 2048w`}
+                  src={assetUrl(ep.cover)}
+                  srcset={assetSrcset(`${stem}-400.jpg 400w, ${stem}-800.jpg 800w, ${stem}-1200.jpg 1200w, ${ep.cover} 2048w`)}
                   sizes="(max-width: 600px) 90vw, (max-width: 860px) 45vw, 30vw"
                   alt={ep.title + '封面'}
                   loading="lazy"

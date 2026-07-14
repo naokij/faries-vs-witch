@@ -10,6 +10,8 @@
 //   loading       'lazy' | 'eager',默认 'lazy'
 //   class         透传给 <img>
 
+import { assetUrl, assetSrcset } from '~/data/asset-url';
+
 interface Props {
   portrait: string;
   name: string;
@@ -27,11 +29,11 @@ const {
 } = Astro.props;
 
 const stem = portrait.replace(/\.jpg$/i, '');
-const srcset = `${stem}-200.jpg 200w, ${stem}-400.jpg 400w, ${stem}-800.jpg 800w, ${portrait} 2048w`;
+const srcset = assetSrcset(`${stem}-200.jpg 200w, ${stem}-400.jpg 400w, ${stem}-800.jpg 800w, ${portrait} 2048w`);
 ---
 
 <img
-  src={portrait}
+  src={assetUrl(portrait)}
   srcset={srcset}
   sizes={sizes}
   alt={name}

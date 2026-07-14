@@ -2,6 +2,7 @@
 import Base from '~/layouts/Base.astro';
 import CharacterPortrait from '~/components/CharacterPortrait.astro';
 import { episodes, getCharactersInScene } from '~/data/episodes';
+import { assetUrl, assetSrcset } from '~/data/asset-url';
 import fs from 'fs';
 import { pinyin } from 'pinyin-pro';
 
@@ -144,8 +145,8 @@ if (annotated.length > 0) {
       <aside class="story-aside">
         <div class="story-cover">
           <img
-            src={ep.cover}
-            srcset={`${coverStem}-400.jpg 400w, ${coverStem}-800.jpg 800w, ${coverStem}-1200.jpg 1200w, ${ep.cover} 2048w`}
+            src={assetUrl(ep.cover)}
+            srcset={assetSrcset(`${coverStem}-400.jpg 400w, ${coverStem}-800.jpg 800w, ${coverStem}-1200.jpg 1200w, ${ep.cover} 2048w`)}
             sizes="(max-width: 720px) 90vw, (max-width: 1024px) 300px, 480px"
             alt={ep.title + '封面'}
           />
@@ -169,7 +170,7 @@ if (annotated.length > 0) {
             <button data-rate="1" aria-pressed="true">1×</button>
             <button data-rate="1.25">1.25×</button>
           </div>
-          <audio id="audio-element" preload="metadata" src={ep.audio}></audio>
+          <audio id="audio-element" preload="metadata" src={assetUrl(ep.audio!)}></audio>
         </div>
       </aside>
 

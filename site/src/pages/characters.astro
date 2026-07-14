@@ -3,6 +3,7 @@ import Base from '~/layouts/Base.astro';
 import CharacterPortrait from '~/components/CharacterPortrait.astro';
 import { allCharacters, roleLabelMap } from '~/data/characters';
 import { episodes, getEpisodeBySlug } from '~/data/episodes';
+import hashes from '~/data/asset-hashes.json';
 
 const total = allCharacters.length;
 const groups = {
@@ -21,6 +22,7 @@ for (const c of allCharacters) {
     .map((ep) => ({ slug: ep.slug, title: ep.title, number: ep.number }));
 }
 const epsDataJson = JSON.stringify(epsByCharId);
+const hashJson = JSON.stringify(hashes);
 ---
 <Base title="人物介绍 · 仙子大战女巫" active="characters">
   <main class="page page--wide">
@@ -79,6 +81,7 @@ const epsDataJson = JSON.stringify(epsByCharId);
   </main>
 
   <script id="eps-data" type="application/json" set:html={epsDataJson} />
+  <script id="asset-hashes" type="application/json" set:html={hashJson} />
 
   <div class="modal" id="character-modal" aria-hidden="true" role="dialog" aria-labelledby="modal-name">
     <div class="modal__panel" role="document">
@@ -147,6 +150,18 @@ const epsDataJson = JSON.stringify(epsByCharId);
         try { return JSON.parse(el.textContent || '{}'); } catch { return {}; }
       })();
 
+      // 资源 hash 映射 (来自 SSR 内联 JSON)
+      const assetHashes: Record<string, string> = (() => {
+        const el = document.getElementById('asset-hashes');
+        if (!el) return {};
+        try { return JSON.parse(el.textContent || '{}'); } catch { return {}; }
+      })();
+
+      function h(url: string): string {
+        const v = assetHashes[url];
+        return v ? `${url}?h=${v}` : url;
+      }
+
       let currentIdx = -1;
 
       function cardData(card: HTMLElement) {
@@ -177,8 +192,8 @@ const epsDataJson = JSON.stringify(epsByCharId);
 
         // 大图 srcset
         const stem = d.portrait.replace(/\.jpg$/i, '');
-        imgEl.src = d.portrait;
-        imgEl.srcset = `${stem}-400.jpg 400w, ${stem}-800.jpg 800w, ${d.portrait} 2048w`;
+        imgEl.src = h(d.portrait);
+        imgEl.srcset = `${h(stem + '-400.jpg')} 400w, ${h(stem + '-800.jpg')} 800w, ${h(d.portrait)} 2048w`;
         imgEl.sizes = '(max-width: 720px) 90vw, 360px';
         imgEl.alt = d.name;
 

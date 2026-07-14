@@ -20,3 +20,6 @@ node "$(dirname "$0")/generate-image-variants.mjs" "$PUBLIC/assets/covers" --wid
 echo "✅ 同步完成"
 echo "  图片: $(find "$PUBLIC/assets" -type f | wc -l | xargs) 个"
 echo "  音频: $(ls "$PUBLIC/audio"/*.mp3 2>/dev/null | wc -l | xargs) 个"
+
+# 生成资源内容 hash 映射表（用于构建时给 URL 加 ?h=xxxx 实现缓存 bust）
+node "$(dirname "$0")/generate-asset-hashes.mjs"
