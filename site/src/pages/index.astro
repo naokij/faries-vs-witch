@@ -9,6 +9,7 @@ const featuredChars = characters.filter(c => ['amalia', 'amakesi', 'mengmeng', '
 const onlineEps = episodes.filter(e => e.status === 'online');
 const latest = onlineEps[onlineEps.length - 1];
 const activeEpisodes = episodes.filter(e => e.status === 'online');
+const latestStem = latest.cover.replace(/\.jpg$/i, '');
 ---
 <Base title="仙子大战女巫 · 森林奇幻有声绘本" active="home">
   <main class="page">
@@ -31,7 +32,13 @@ const activeEpisodes = episodes.filter(e => e.status === 'online');
 
       <div class="card home-latest-card">
         <div style="aspect-ratio: 1/1; border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow-sm);">
-          <img src={latest.cover} alt={latest.title + '封面'} style="width:100%;height:100%;object-fit:cover;" />
+          <img
+            src={latest.cover}
+            srcset={`${latestStem}-400.jpg 400w, ${latestStem}-800.jpg 800w, ${latestStem}-1200.jpg 1200w, ${latest.cover} 2048w`}
+            sizes="(max-width: 720px) 90vw, 280px"
+            alt={latest.title + '封面'}
+            style="width:100%;height:100%;object-fit:cover;"
+          />
         </div>
         <div>
           <div class="flex gap-2" style="flex-wrap: wrap;">

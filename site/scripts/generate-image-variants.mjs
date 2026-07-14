@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * 派生 srcset 变体:把目录里每张 *.jpg 生成 {basename}-200.jpg / -400.jpg / -800.jpg 三档。
+ * 派生 srcset 变体:把目录里每张 *.jpg 生成 {basename}-{width}.jpg 多档。
  * 幂等:输出文件 mtime >= 输入 mtime 且文件存在则跳过。
- * 运行: node generate-image-variants.mjs <dir>
+ * 运行: node generate-image-variants.mjs <dir> [--widths=200,400,800] [--quality=78]
  *   <dir> 默认为 site/public/assets/characters
  */
 import sharp from 'sharp';
@@ -13,9 +13,14 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const DEFAULT_DIR = join(__dirname, '..', 'public', 'assets', 'characters');
-const TARGET_DIR = process.argv[2] ?? DEFAULT_DIR;
-const WIDTHS = [200, 400, 800];
-const QUALITY = 78;
+
+// 解析参数: <dir> [--widths=...] [--quality=...]
+const args = process.argv.slice(2);
+const TARGET_DIR = args.find((a) => !a.startsWith('--')) ?? DEFAULT_DIR;
+const widthsArg = args.find((a) => a.startsWith('--widths='));
+const qualityArg = args.find((a) => a.startsWith('--quality='));
+const WIDTHS = widthsArg ? widthsArg.split('=')[1].split(',').map(Number) : [200, 400, 800];
+const QUALITY = qualityArg ? Number(qualityArg.split('=')[1]) : 78;
 
 async function main() {
   let entries;

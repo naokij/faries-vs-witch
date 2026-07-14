@@ -10,6 +10,7 @@ export function getStaticPaths() {
 }
 
 const { ep } = Astro.props;
+const coverStem = ep.cover.replace(/\.jpg$/i, '');
 const chars = getCharactersInScene(ep);
 const nextEp = ep.next?.status === 'online' ? episodes.find(e => e.title === ep.next?.title) : null;
 
@@ -142,7 +143,12 @@ if (annotated.length > 0) {
     <div class="story-layout">
       <aside class="story-aside">
         <div class="story-cover">
-          <img src={ep.cover} alt={ep.title + '封面'} />
+          <img
+            src={ep.cover}
+            srcset={`${coverStem}-400.jpg 400w, ${coverStem}-800.jpg 800w, ${coverStem}-1200.jpg 1200w, ${ep.cover} 2048w`}
+            sizes="(max-width: 720px) 90vw, (max-width: 1024px) 300px, 480px"
+            alt={ep.title + '封面'}
+          />
         </div>
         <div class="story-player">
           <button class="play-btn" id="audio-play" aria-label="播放 / 暂停">
