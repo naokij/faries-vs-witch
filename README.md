@@ -8,7 +8,7 @@
 faries-vs-witch/
 ├── assets/              ← 图片（角色立绘、banner、封面）
 │   ├── banners/         ← 网站横幅
-│   ├── characters/      ← 角色立绘（30 位角色）
+│   ├── characters/      ← 角色立绘（32 位角色）
 │   └── covers/          ← 各集封面（1:1 正方形）
 ├── audio/               ← 配音 mp3（MiniMax TTS 生成）
 ├── stories/             ← 故事正文 markdown
@@ -17,7 +17,7 @@ faries-vs-witch/
 │   ├── public/          ← 构建时自动同步 assets/ + audio/
 │   ├── src/
 │   │   ├── data/        ← episodes.ts + characters.ts + asr/*.aligned.json
-│   │   ├── pages/       ← 9 个故事页面 + 列表页 + 首页 + 人物页
+│   │   ├── pages/       ← 12 个故事页面 + 列表页 + 首页 + 人物页
 │   │   └── styles/      ← 设计系统 CSS
 │   ├── scripts/         ← sync-assets.sh 同步资源
 │   └── dist/            ← 构建产物（可部署）
@@ -195,6 +195,7 @@ const featuredChars = characters.filter(c =>
 | EP.09 | 冰火能量回归 | 12 分 | ✅ 已上线 |
 | EP.10 | 仙子首领阿玛克斯 | 16 分 | ✅ 已上线 |
 | EP.11 | 朵朵学飞记 | 10 分 | ✅ 已上线 |
+| EP.12 | 黑暗花朵怪 | 14 分 | ✅ 已上线 |
 
 ## 数据流程
 
@@ -241,7 +242,7 @@ site/dist/            ← Astro 构建输出（纯静态 HTML）
 
 参照 `brand-spec.md`：暖米黄纸感底色 `oklch(97% 0.018 80)`，一角色一颜色标签，所有颜色用 OKLch 色空间，圆角柔和，适合 6 岁读者。
 
-## 角色（30 位）
+## 角色（32 位）
 
 | 角色 | 身份 | 登场 |
 |------|------|------|
@@ -274,3 +275,5 @@ site/dist/            ← Astro 构建输出（纯静态 HTML）
 | 晶晶 | 亮晶晶仙子 | EP.07 |
 | 僵尸魔法师 | 反派僵尸 | EP.07 |
 | 僵尸魔法师女朋友 | 反派僵尸 | EP.08 |
+| 黑暗花朵怪 | 反派花朵怪物 | EP.12 |
+| 藤小花 | 花朵生物（净化后） | EP.12 |

@@ -431,6 +431,48 @@ export const episodes: Episode[] = [
       },
     ],
     charactersInScene: ['amalia', 'amakesi', 'duoduo', 'mengmeng', 'miaomiao', 'youyou', 'yueyue', 'rongrong', 'baobao', 'bingbing', 'huohuo'],
+    next: { title: '黑暗花朵怪', status: 'online' },
+  },
+  {
+    slug: '12-黑暗花朵怪',
+    number: 12,
+    title: '黑暗花朵怪',
+    subtitle: '爱心魔法大战黑暗花朵怪',
+    duration: '约 14 分钟',
+    status: 'online',
+    cover: '/assets/covers/12-黑暗花朵怪.jpg',
+    audio: '/audio/12-黑暗花朵怪.mp3',
+    color: 'witch',
+    excerpt: '巫巫女从库克多监狱逃脱，释放了被封印在枯萎花园的黑暗花朵怪！它能吸收植物能量，越打越强。月月的藤蔓、冰冰的冰石统统没用。关键时刻，朵朵的爱心魔法成了唯一的希望--净化后黑暗花朵怪变回了善良的藤小花。可巫巫女又逃跑了……',
+    intro: '那天晚上，阿玛克斯嘴上说"可能看错了"，可心里一直不踏实--',
+    scenes: [
+      {
+        illust: '/assets/characters/女巫-巫巫女.jpg',
+        title: '巫巫女逃脱',
+        body: '月月的花园一夜之间全部枯萎，花朵碎成黑色粉末。库克多急忙赶来报告：巫巫女从库克多监狱逃跑了！阿玛克斯意识到昨晚的影子就是她。',
+      },
+      {
+        illust: '/assets/characters/黑暗花朵怪.jpg',
+        title: '黑暗花朵怪苏醒',
+        body: '巫巫女解开了枯萎花园的封印，释放了被封印的黑暗花朵怪。黑色花冠、锯齿花瓣、紫色纹路、藤蔓身体长满尖刺。它喷出黑色花粉，所到之处花草全部枯萎。',
+      },
+      {
+        illust: '/assets/characters/黑暗花朵怪.jpg',
+        title: '魔法全部失效',
+        body: '月月的藤蔓、冰冰的冰石、火火的火焰、健健的箭、蓉蓉的冰雪——所有攻击都被黑暗花朵怪吸收或弹开，它还能再生，越吸越强！',
+      },
+      {
+        illust: '/assets/characters/宝宝仙子-朵朵.jpg',
+        title: '朵朵的爱心魔法',
+        body: '阿玛利亚想到：爱心魔法是治愈魔法，不是攻击魔法，黑暗花朵怪吸收不了！朵朵鼓起勇气飞向黑暗花朵怪，粉色翅膀发出温暖的光芒，黑色开始褪去。',
+      },
+      {
+        illust: '/assets/characters/藤小花.jpg',
+        title: '藤小花苏醒',
+        body: '黑暗花朵怪被净化，变回了一个小小的花朵生物。她皱着眉头想了很久，终于想起自己的名字——藤小花。她走过的地方枯萎的花朵重新绽放，留在月月花园帮忙照顾花朵。',
+      },
+    ],
+    charactersInScene: ['amalia', 'amakesi', 'duoduo', 'mengmeng', 'miaomiao', 'youyou', 'yueyue', 'jingjing', 'rongrong', 'bingbing', 'huohuo', 'jianjian', 'kukeduo', 'witch', 'darkflower', 'tengxiaohua'],
   },
 ];
 

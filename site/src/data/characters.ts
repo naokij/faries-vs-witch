@@ -393,6 +393,32 @@ export const characters: Character[] = [
     portrait: '/assets/characters/宝宝仙子-朵朵.jpg',
     debut: '10-仙子首领阿玛克斯',
   },
+  {
+    id: 'tengxiaohua',
+    name: '藤小花',
+    role: 'ally',
+    roleLabel: '花朵生物',
+    age: '- ',
+    color: 'leaf',
+    colorVar: 'var(--c-leaf)',
+    power: '花朵治愈 · 生命之力',
+    bio: '原本是一个善良的花朵生物，被黑暗力量侵蚀变成了黑暗花朵怪，被封印在枯萎花园地下。第十二集被巫巫女释放，朵朵用爱心魔法净化后变回原样。头顶淡紫色花冠，白色头发，藤蔓缠绕的身体末端开着小花，紫粉色眼睛。性格安静温柔，刚苏醒还有些迷茫，能治愈枯萎的花草，留在月月花园帮忙照顾花朵。',
+    portrait: '/assets/characters/藤小花.jpg',
+    debut: '12-黑暗花朵怪',
+  },
+  {
+    id: 'darkflower',
+    name: '黑暗花朵怪',
+    role: 'witch',
+    roleLabel: '反派',
+    age: '- ',
+    color: 'witch',
+    colorVar: 'var(--c-witch)',
+    power: '吸收植物能量 · 黑暗花粉',
+    bio: '藤小花被黑暗力量侵蚀后的形态。头顶黑色花冠，锯齿花瓣上有紫色纹路，藤蔓身体长满尖刺，紫色眼睛散发冰冷光芒。能吸收植物系魔法能量并再生，越吸越强。喷出黑色花粉让花草枯萎。第十二集被巫巫女从枯萎花园封印中释放，最终被朵朵的爱心魔法净化。',
+    portrait: '/assets/characters/黑暗花朵怪.jpg',
+    debut: '12-黑暗花朵怪',
+  },
 ];
 
 export const roleLabelMap: Record<CharacterRole, string> = {
