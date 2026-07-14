@@ -456,11 +456,15 @@ p  { margin: 0; }
   gap: var(--s-5);
 }
 .grid--2 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-.grid--3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.grid--3 { grid-template-columns: repeat(3, 1fr); }
 .grid--4 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 .grid--characters { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 
+@media (max-width: 860px) {
+  .grid--3 { grid-template-columns: repeat(2, 1fr); }
+}
 @media (max-width: 600px) {
+  .grid--3 { grid-template-columns: 1fr; }
   .grid--4 { grid-template-columns: repeat(2, 1fr); }
   .grid--characters { grid-template-columns: repeat(2, 1fr); }
   .page { padding: var(--s-6) var(--s-4) var(--s-12); }
@@ -780,6 +784,59 @@ p  { margin: 0; }
 }
 .tab:hover { border-color: var(--border-strong); color: var(--fg); }
 .tab[aria-pressed="true"] {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+/* ============================================================
+   分页导航
+   ============================================================ */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+  padding: var(--s-6) 0 var(--s-4);
+}
+.pagination__btn,
+.pagination__num {
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.18s;
+  border-radius: var(--r-pill);
+}
+.pagination__btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.pagination__btn:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  color: var(--fg);
+}
+.pagination__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.pagination__num {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  width: 40px;
+  height: 40px;
+  font-size: 15px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.pagination__num:hover { border-color: var(--border-strong); }
+.pagination__num.is-active {
   background: var(--accent);
   color: white;
   border-color: var(--accent);

@@ -54,19 +54,71 @@ import { episodes } from '~/data/episodes';
     </div>
     </section>
 
+    <nav class="pagination" id="pagination" aria-label="分页导航"></nav>
+
     </main>
 
   <script>
+    const PER_PAGE = 9;
+    const grid = document.getElementById('episode-grid')!;
+    const cards = Array.from(grid.querySelectorAll<HTMLElement>('.episode-card'));
+    const pagination = document.getElementById('pagination')!;
+
+    let currentFilter = 'all';
+    let currentPage = 1;
+
+    function visibleCards() {
+      return cards.filter(c => currentFilter === 'all' || c.dataset.status === currentFilter);
+    }
+
+    function totalPages() {
+      return Math.max(1, Math.ceil(visibleCards().length / PER_PAGE));
+    }
+
+    function render() {
+      const pages = totalPages();
+      if (currentPage > pages) currentPage = pages;
+
+      const start = (currentPage - 1) * PER_PAGE;
+      const pageCards = visibleCards();
+      const inPage = new Set(pageCards.slice(start, start + PER_PAGE));
+
+      cards.forEach(card => {
+        card.style.display = inPage.has(card) ? '' : 'none';
+      });
+
+      // 构建分页按钮
+      const btns: string[] = [];
+      btns.push(`<button class="pagination__btn" data-page="${currentPage - 1}" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>`);
+      for (let p = 1; p <= pages; p++) {
+        btns.push(`<button class="pagination__num ${p === currentPage ? 'is-active' : ''}" data-page="${p}">${p}</button>`);
+      }
+      btns.push(`<button class="pagination__btn" data-page="${currentPage + 1}" ${currentPage === pages ? 'disabled' : ''}>下一页</button>`);
+      pagination.innerHTML = btns.join('');
+    }
+
+    // 分页点击
+    pagination.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const btn = target.closest('[data-page]') as HTMLElement | null;
+      if (!btn || btn.hasAttribute('disabled')) return;
+      const page = Number(btn.dataset.page);
+      if (page < 1 || page > totalPages()) return;
+      currentPage = page;
+      render();
+      grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // 筛选点击
     document.querySelectorAll<HTMLButtonElement>('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll<HTMLButtonElement>('.tab').forEach(t => t.setAttribute('aria-pressed', t === tab ? 'true' : 'false'));
-        const filter = tab.dataset.filter || 'all';
-        document.querySelectorAll<HTMLElement>('#episode-grid .episode-card').forEach(card => {
-          const status = card.dataset.status || '';
-          const show = filter === 'all' || status === filter;
-          card.style.display = show ? '' : 'none';
-        });
+        currentFilter = tab.dataset.filter || 'all';
+        currentPage = 1;
+        render();
       });
     });
+
+    render();
   </script>
 </Base>
