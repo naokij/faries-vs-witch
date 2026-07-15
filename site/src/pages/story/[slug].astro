@@ -468,11 +468,10 @@ if (annotated.length > 0) {
       audio.addEventListener('pause', () => { if (recovering) return; setPlayingUI(false); setState('ready', '已暂停'); stopHighlight(); });
       audio.addEventListener('ended', () => { setPlayingUI(false); setState('ready', '本集已播完'); stopHighlight(); });
       audio.addEventListener('error', () => { setPlayingUI(false); setState('error', '音频加载失败'); });
-      // 流式播放缓冲事件：range request 卡住时提示缓冲中
+      // 流式播放缓冲事件：waiting = 缓冲区空了真正在等数据，playing = 缓冲恢复可以播了
+      // 注意：stalled 不处理 —— 它在"请求发出但数据暂未到"时触发，此时缓冲区可能还有数据在正常播放
       audio.addEventListener('waiting', () => { if (!recovering) setState('buffering', '正在缓冲...'); });
-      audio.addEventListener('stalled', () => { if (!recovering) setState('buffering', '正在缓冲...'); });
-      // 播放真正恢复后重置重试计数，下次中断重新获得完整重试额度
-      audio.addEventListener('playing', () => { retryCount = 0; });
+      audio.addEventListener('playing', () => { retryCount = 0; setState('playing', '正在播放'); });
 
       speedBtns.forEach(b => {
         b.addEventListener('click', () => {
