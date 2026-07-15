@@ -258,6 +258,12 @@ if (annotated.length > 0) {
       const body = document.getElementById('story-body');
       if (!audio || !body) return;
 
+      // 流式播放中断恢复状态
+      let recovering = false;      // 是否正在执行恢复
+      let retryCount = 0;          // 当前恢复次数
+      const MAX_RETRIES = 3;       // 最多重试 3 次，避免无限循环
+      let userPaused = false;      // 用户是否主动暂停（恢复时判断是否该自动续播）
+
       // fallback 路径：没有 .w span 时从 ruby 元素构建
       const words = Array.from(body.querySelectorAll('.story-body__text > p')).flatMap(p =>
         Array.from(p.querySelectorAll('ruby')).map(r => ({
@@ -300,8 +306,8 @@ if (annotated.length > 0) {
       }
 
       playBtn.addEventListener('click', () => {
-        if (audio.paused) audio.play();
-        else audio.pause();
+        if (audio.paused) { userPaused = false; audio.play(); }
+        else { userPaused = true; audio.pause(); }
       });
 
       bar.addEventListener('click', (e) => {
@@ -391,6 +397,46 @@ if (annotated.length > 0) {
       function startHighlight() { if (!rafId) highlightLoop(); }
       function stopHighlight() { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
 
+      // 流式播放中断恢复：range request 失败时解码器收不到新帧 -> 静音但时钟仍在走
+      // 检测到"假死"后重新 load() 建立连接，从断点继续播
+      function attemptRecover() {
+        if (recovering || retryCount >= MAX_RETRIES) {
+          if (retryCount >= MAX_RETRIES) setState('error', '音频加载失败，请刷新重试');
+          return;
+        }
+        recovering = true;
+        retryCount++;
+        setState('buffering', '正在缓冲...');
+        const resumeTime = audio.currentTime;
+
+        function onCanPlay() {
+          audio.removeEventListener('canplay', onCanPlay);
+          try { audio.currentTime = resumeTime; } catch (e) {}
+          if (!userPaused) {
+            audio.play().then(() => { recovering = false; }).catch(() => { recovering = false; });
+          } else {
+            recovering = false;
+            setState('ready', '已暂停');
+          }
+        }
+        audio.addEventListener('canplay', onCanPlay);
+        audio.load();
+      }
+
+      // 心跳检测：每秒检查 currentTime 是否在前进，连续 3 秒停滞则判定为"假死"
+      let lastCurrentTime = 0;
+      let stallCount = 0;
+      setInterval(() => {
+        if (audio.paused || audio.ended || !audio.duration || recovering) return;
+        if (Math.abs(audio.currentTime - lastCurrentTime) < 0.1) {
+          stallCount++;
+          if (stallCount >= 3) { stallCount = 0; attemptRecover(); }
+        } else {
+          stallCount = 0;
+        }
+        lastCurrentTime = audio.currentTime;
+      }, 1000);
+
       // 页面不可见时暂停高亮循环，节省电量
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) stopHighlight();
@@ -414,13 +460,19 @@ if (annotated.length > 0) {
         }
       });
       audio.addEventListener('loadedmetadata', () => {
+        if (recovering) return;  // 恢复中 load() 会重新触发，不要覆盖缓冲状态
         dur.textContent = fmt(audio.duration);
         setState('ready', '点击播放');
       });
       audio.addEventListener('play', () => { setPlayingUI(true); setState('playing', '正在播放'); startHighlight(); });
-      audio.addEventListener('pause', () => { setPlayingUI(false); setState('ready', '已暂停'); stopHighlight(); });
+      audio.addEventListener('pause', () => { if (recovering) return; setPlayingUI(false); setState('ready', '已暂停'); stopHighlight(); });
       audio.addEventListener('ended', () => { setPlayingUI(false); setState('ready', '本集已播完'); stopHighlight(); });
       audio.addEventListener('error', () => { setPlayingUI(false); setState('error', '音频加载失败'); });
+      // 流式播放缓冲事件：range request 卡住时提示缓冲中
+      audio.addEventListener('waiting', () => { if (!recovering) setState('buffering', '正在缓冲...'); });
+      audio.addEventListener('stalled', () => { if (!recovering) setState('buffering', '正在缓冲...'); });
+      // 播放真正恢复后重置重试计数，下次中断重新获得完整重试额度
+      audio.addEventListener('playing', () => { retryCount = 0; });
 
       speedBtns.forEach(b => {
         b.addEventListener('click', () => {
@@ -486,6 +538,8 @@ if (annotated.length > 0) {
     margin-bottom: 4px;
   }
   .audio-player__state[data-state="playing"] { color: var(--accent-strong); }
+  .audio-player__state[data-state="buffering"] { color: var(--accent-strong); animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
   .story-player__bar {
     width: 100%;
     height: 6px;
