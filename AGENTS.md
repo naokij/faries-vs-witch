@@ -2,7 +2,7 @@
 
 Children's audio picture book site (Astro 7). Daughter provides story ideas/voiceover; parent handles engineering.
 
-**Current state:** 12 episodes online. Latest: 黑暗花朵怪 (EP.12).
+**Current state:** 13 episodes online. Latest: 植物仙子月月和藤小花种小菊 (EP.13).
 
 ## Repo layout
 

@@ -473,6 +473,43 @@ export const episodes: Episode[] = [
       },
     ],
     charactersInScene: ['amalia', 'amakesi', 'duoduo', 'mengmeng', 'miaomiao', 'youyou', 'yueyue', 'jingjing', 'rongrong', 'bingbing', 'huohuo', 'jianjian', 'kukeduo', 'witch', 'darkflower', 'tengxiaohua'],
+    next: { title: '植物仙子月月和藤小花种小菊', status: 'online' },
+  },
+  {
+    slug: '13-植物仙子月月和藤小花种小菊',
+    number: 13,
+    title: '植物仙子月月和藤小花种小菊',
+    subtitle: '用爱浇灌的小菊花',
+    duration: '约 14 分钟',
+    status: 'online',
+    cover: '/assets/covers/13-植物仙子月月和藤小花种小菊.jpg',
+    audio: '/audio/13-植物仙子月月和藤小花种小菊.mp3',
+    color: 'leaf',
+    excerpt: '藤小花住在月月花园里，却总是躲在一角不敢说话。月月发现了一颗菊花种子，拉着藤小花一起种下。月月的藤蔓浇水、藤小花的治愈温暖、苗苗的歌声、朵朵的爱心魔法--四股力量汇在一起，小菊发芽了。藤小花急着用治愈力催开花苞差点弄坏花，月月告诉她花开不能急。等了好多天，雪白的小菊花终于绽放，藤小花也第一次露出了笑容，说出了"谢谢你，月月"。',
+    intro: '藤小花住在月月花园里帮忙照顾花朵，可她总是一个人躲在角落里……',
+    scenes: [
+      {
+        illust: '/assets/characters/藤小花.jpg',
+        title: '藤小花的不安',
+        body: '藤小花每天安静地在花园帮忙，碰一碰枯萎的花就重新开放。可她从不主动说话，总是一个人躲在角落，紫粉色的眼睛里满是迷茫。冰冰火火来玩她就躲到月月身后，蓉蓉打招呼她也不敢看。',
+      },
+      {
+        illust: '/assets/characters/植物仙子-月月-翅膀模式.jpg',
+        title: '一起种小菊',
+        body: '月月翻土时发现一颗菊花种子，拉着藤小花一起种。月月用藤蔓松土浇水，藤小花用花朵治愈力给种子温暖，苗苗端水壶来帮忙，朵朵飞过来用爱心魔法加持。四股力量汇在一起，嫩绿的小芽钻出了土！',
+      },
+      {
+        illust: '/assets/characters/宝宝仙子-苗苗.jpg',
+        title: '耐心等待',
+        body: '月月和藤小花每天轮流照顾小菊--浇水、唱歌、讲故事。藤小花第一次主动说话："你要快快长大哦，小菊。"小菊长高了，长出了花苞。藤小花每天都跑去看，可花苞紧紧闭着。大家说："花开有自己的节奏，耐心等。"',
+      },
+      {
+        illust: '/assets/characters/藤小花.jpg',
+        title: '小菊开花了',
+        body: '第四天清晨，雪白色的小菊花终于绽放了！花瓣层层叠叠洁白如月光，花心淡淡的黄色像金色宝石。所有仙子都跑来看。藤小花看着小菊，红着脸对月月说："谢谢你带我种花。"她还说出了被黑暗困住时的心里话--"现在我可以了。"',
+      },
+    ],
+    charactersInScene: ['yueyue', 'tengxiaohua', 'miaomiao', 'duoduo', 'amalia', 'amakesi', 'mengmeng', 'youyou', 'rongrong', 'bingbing', 'huohuo', 'jianjian', 'baobao', 'cuicui', 'tongtong'],
   },
 ];
 

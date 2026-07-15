@@ -17,7 +17,7 @@ faries-vs-witch/
 │   ├── public/          ← 构建时自动同步 assets/ + audio/
 │   ├── src/
 │   │   ├── data/        ← episodes.ts + characters.ts + asr/*.aligned.json
-│   │   ├── pages/       ← 12 个故事页面 + 列表页 + 首页 + 人物页
+│   │   ├── pages/       ← 13 个故事页面 + 列表页 + 首页 + 人物页
 │   │   └── styles/      ← 设计系统 CSS
 │   ├── scripts/         ← sync-assets.sh 同步资源
 │   └── dist/            ← 构建产物（可部署）
@@ -196,6 +196,7 @@ const featuredChars = characters.filter(c =>
 | EP.10 | 仙子首领阿玛克斯 | 16 分 | ✅ 已上线 |
 | EP.11 | 朵朵学飞记 | 10 分 | ✅ 已上线 |
 | EP.12 | 黑暗花朵怪 | 14 分 | ✅ 已上线 |
+| EP.13 | 植物仙子月月和藤小花种小菊 | 14 分 | ✅ 已上线 |
 
 ## 数据流程
 
