@@ -2,7 +2,11 @@
 
 Children's audio picture book site (Astro 7). Daughter provides story ideas/voiceover; parent handles engineering.
 
-**Current state:** 13 episodes online. Latest: 植物仙子月月和藤小花种小菊 (EP.13).
+**Current state:** 14 episodes online. Latest: 藤小花又被变坏了 (EP.14).
+
+**Story writing guide:** See `doc/story-writing-guide.md` for story writing standards, error lessons, and templates.
+
+**Cover prompt guide:** See `doc/cover-prompt-guide.md` for cover image prompt writing standards and templates.
 
 ## Repo layout
 
@@ -37,16 +41,18 @@ npm run check:asr             # validate ASR aligned data (run after regeneratin
 ## Adding a new episode — exact order
 
 1. Write story: `stories/N-标题.md`
-2. Add cover: `assets/covers/N-标题.jpg` (1:1 square)
-3. Add character portraits: `assets/characters/` (if new characters)
-4. TTS: `mmx speech synthesize --text-file stories/N-标题.md --voice "Chinese (Mandarin)_Cute_Spirit" --language zh --out audio/N-标题.mp3`
-5. ASR step A: `cd site && bash scripts/asr.sh ../audio/N-标题.mp3` → `data/asr/N-标题.json`
-6. ASR step B: `python3 scripts/align-asr.py ../stories/N-标题.md data/asr/N-标题.json data/asr/N-标题.aligned.json`
-7. Validate: `npm run check:asr` - must show 0 ERROR before publishing. WARN (TIME_REVERSE/ZERO_SPAN_HANZI) is acceptable.
-8. Edit `site/src/data/episodes.ts` - add episode entry
-9. Edit `site/src/data/characters.ts` - add new characters if any
-10. Edit `site/src/pages/index.astro` - add character IDs to `featuredChars` array if new characters
-11. Build & preview: `npm run build && npx astro dev --background`
+2. Generate cover prompt: See `doc/cover-prompt-guide.md` for prompt writing standards
+3. Generate cover image: Use `mmx image generate` with the prompt, or use other image generation tools
+4. Add cover: `assets/covers/N-标题.jpg` (1:1 square)
+5. Add character portraits: `assets/characters/` (if new characters)
+6. TTS: `mmx speech synthesize --text-file stories/N-标题.md --voice "Chinese (Mandarin)_Cute_Spirit" --language zh --out audio/N-标题.mp3`
+7. ASR step A: `cd site && bash scripts/asr.sh ../audio/N-标题.mp3` → `data/asr/N-标题.json`
+8. ASR step B: `python3 scripts/align-asr.py ../stories/N-标题.md data/asr/N-标题.json data/asr/N-标题.aligned.json`
+9. Validate: `npm run check:asr` - must show 0 ERROR before publishing. WARN (TIME_REVERSE/ZERO_SPAN_HANZI) is acceptable.
+10. Edit `site/src/data/episodes.ts` - add episode entry
+11. Edit `site/src/data/characters.ts` - add new characters if any
+12. Edit `site/src/pages/index.astro` - add character IDs to `featuredChars` array if new characters
+13. Build & preview: `npm run build && npx astro dev --background`
 
 Steps 5-7 are required — without ASR data, no per-character highlighting during playback. Step 7 catches highlight bugs (duplicate timestamps, title audio misalignment, tiny spans) before they reach users.
 

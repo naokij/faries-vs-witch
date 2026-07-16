@@ -511,6 +511,47 @@ export const episodes: Episode[] = [
     ],
     charactersInScene: ['yueyue', 'tengxiaohua', 'miaomiao', 'duoduo', 'amalia', 'amakesi', 'mengmeng', 'youyou', 'rongrong', 'bingbing', 'huohuo', 'jianjian', 'baobao', 'cuicui', 'tongtong'],
   },
+  {
+    slug: '14-藤小花又被变坏了',
+    number: 14,
+    title: '藤小花又被变坏了',
+    subtitle: '害怕与不放弃',
+    duration: '约 12 分钟',
+    status: 'online',
+    cover: '/assets/covers/14-藤小花又被变坏了.jpg',
+    audio: '/audio/14-藤小花又被变坏了.mp3',
+    color: 'leaf',
+    excerpt: '藤小花害怕自己会再次变成黑暗花朵怪，伤害到朋友们。巫巫女趁清晨用黑暗魔法控制了藤小花，但藤小花拼命抵抗。妮妮和可可赶来帮忙，藤小花用小菊的力量抵抗黑暗，最终朵朵用爱心魔法净化了她。仙子森林的友谊，永远不会放弃！',
+    intro: '藤小花好害怕……她害怕自己会再次变成黑暗花朵怪，伤害到月月她们……',
+    scenes: [
+      {
+        illust: '/assets/characters/藤小花.jpg',
+        title: '藤小花的害怕',
+        body: '藤小花蹲在小菊旁边，轻声说："小菊，我好害怕……我害怕自己会再变成黑暗花朵怪，伤害到月月她们……"小菊的花瓣晃了晃，好像在说"别怕"。',
+      },
+      {
+        illust: '/assets/characters/女巫-巫巫女.jpg',
+        title: '巫巫女的偷袭',
+        body: '巫巫女突然出现，用黑暗魔法射中藤小花！藤小花的眼睛开始变色，她拼命抵抗，喊："不要！我会伤害你们的！月月，快跑！"月月冲过来抱住她："我不会放弃你的！"',
+      },
+      {
+        illust: '/assets/characters/绿元素仙子-妮妮.jpg',
+        title: '妮妮和可可赶到',
+        body: '妮妮和可可听到声音赶来！可可酷酷地说："我们不会跑的！朋友有难，当然要帮忙！"妮妮用绿元素魔法·生命之光形成防护罩，可可用酷酷魔法·酷酷旋风弹开巫巫女的魔法箭。',
+      },
+      {
+        illust: '/assets/characters/藤小花.jpg',
+        title: '小菊的力量',
+        body: '藤小花看到朋友们危险，喊："不要伤害她们！"她用尽全力抵抗黑暗，身体开始发出淡淡的粉色光芒——是小菊的力量！小菊的花瓣在风中摇曳，帮助藤小花抵抗黑暗。',
+      },
+      {
+        illust: '/assets/characters/酷酷仙子-可可.jpg',
+        title: '打败巫巫女',
+        body: '妮妮喊："绿元素魔法·藤蔓缠绕！"可可喊："酷酷魔法·酷酷锁链！"巫巫女被打败了！朵朵赶来，用爱心魔法净化藤小花。藤小花哭了："谢谢你们没有放弃我……"',
+      },
+    ],
+    charactersInScene: ['tengxiaohua', 'yueyue', 'witch', 'nini', 'keke', 'amalia', 'amakesi', 'bingbing', 'huohuo', 'rongrong', 'jianjian', 'baobao', 'cuicui', 'tongtong', 'duoduo', 'miaomiao'],
+  },
 ];
 
 export const getEpisodeBySlug = (slug: string) => episodes.find(e => e.slug === slug);

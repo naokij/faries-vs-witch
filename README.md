@@ -12,7 +12,7 @@ faries-vs-witch/
 │   └── covers/          ← 各集封面（1:1 正方形）
 ├── audio/               ← 配音 mp3（MiniMax TTS 生成）
 ├── stories/             ← 故事正文 markdown
-├── docs/                ← 世界观与角色设定
+├── doc/                 ← 文档（封面提示词指南、故事创作指南）
 ├── site/                ← Astro 7 网站源码
 │   ├── public/          ← 构建时自动同步 assets/ + audio/
 │   ├── src/
@@ -197,6 +197,7 @@ const featuredChars = characters.filter(c =>
 | EP.11 | 朵朵学飞记 | 10 分 | ✅ 已上线 |
 | EP.12 | 黑暗花朵怪 | 14 分 | ✅ 已上线 |
 | EP.13 | 植物仙子月月和藤小花种小菊 | 14 分 | ✅ 已上线 |
+| EP.14 | 藤小花又被变坏了 | 12 分 | ✅ 已上线 |
 
 ## 数据流程
 
