@@ -258,17 +258,6 @@ if (annotated.length > 0) {
       const body = document.getElementById('story-body');
       if (!audio || !body) return;
 
-      // 流式播放中断恢复状态
-      let recovering = false;      // 是否正在执行恢复
-      let retryCount = 0;          // 当前恢复次数
-      const MAX_RETRIES = 3;       // 最多重试 3 次，避免无限循环
-      let userPaused = false;      // 用户是否主动暂停（恢复时判断是否该自动续播）
-
-      // Web Audio 静音检测：iOS 锁屏后 currentTime 仍在走但无声音输出，
-      // 用 AnalyserNode 检测实际音频波形 RMS 判断是否真的在出声
-      let audioCtx = null;
-      let analyser = null;
-      let silentStart = 0;         // 开始静音的时间戳
       let mediaSessionConfigured = false;
 
       // fallback 路径：没有 .w span 时从 ruby 元素构建
@@ -313,15 +302,8 @@ if (annotated.length > 0) {
       }
 
       playBtn.addEventListener('click', () => {
-        if (audio.paused) {
-          userPaused = false;
-          initAudioAnalysis();  // iOS 要求在用户手势中创建 AudioContext
-          if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-          audio.play();
-        } else {
-          userPaused = true;
-          audio.pause();
-        }
+        if (audio.paused) audio.play();
+        else audio.pause();
       });
 
       bar.addEventListener('click', (e) => {
@@ -405,56 +387,11 @@ if (annotated.length > 0) {
             cur.textContent = fmt(t);
           }
           highlight(t);
-          checkSilence();
         }
         rafId = requestAnimationFrame(highlightLoop);
       }
       function startHighlight() { if (!rafId) highlightLoop(); }
       function stopHighlight() { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
-
-      // 流式播放中断恢复：range request 失败时解码器收不到新帧 -> 静音但时钟仍在走
-      // 检测到"假死"后重新 load() 建立连接，从断点继续播
-      function attemptRecover() {
-        if (recovering || retryCount >= MAX_RETRIES) {
-          if (retryCount >= MAX_RETRIES) setState('error', '音频加载失败，请刷新重试');
-          return;
-        }
-        recovering = true;
-        retryCount++;
-        setState('buffering', '正在缓冲...');
-        const resumeTime = audio.currentTime;
-
-        function onCanPlay() {
-          audio.removeEventListener('canplay', onCanPlay);
-          try { audio.currentTime = resumeTime; } catch (e) {}
-          if (!userPaused) {
-            audio.play().then(() => { recovering = false; }).catch(() => { recovering = false; });
-          } else {
-            recovering = false;
-            setState('ready', '已暂停');
-          }
-        }
-        audio.addEventListener('canplay', onCanPlay);
-        audio.load();
-      }
-
-      // 初始化 Web Audio 分析链路：audio -> AnalyserNode -> destination
-      // 必须在用户手势（点击播放）中调用，iOS 否则拒绝创建 AudioContext
-      function initAudioAnalysis() {
-        if (audioCtx) return;
-        try {
-          const AC = window.AudioContext || window.webkitAudioContext;
-          if (!AC) return;
-          audioCtx = new AC();
-          const source = audioCtx.createMediaElementSource(audio);
-          analyser = audioCtx.createAnalyser();
-          analyser.fftSize = 512;
-          source.connect(analyser);
-          analyser.connect(audioCtx.destination);
-        } catch (e) {
-          audioCtx = null;  // 创建失败则放弃静音检测，不影响正常播放
-        }
-      }
 
       // 配置 Media Session API：锁屏界面显示播放器（标题+封面+控制按钮）
       // 让 iOS 把网页注册为"正在播放音频的 App"，不随意挂起音频会话
@@ -471,44 +408,16 @@ if (annotated.length > 0) {
             album: '童话有声绘本',
             artwork: coverEl ? [{ src: coverEl.src, sizes: '1024x1024', type: 'image/jpeg' }] : [],
           });
-          navigator.mediaSession.setActionHandler('play', () => { userPaused = false; audio.play(); });
-          navigator.mediaSession.setActionHandler('pause', () => { userPaused = true; audio.pause(); });
+          navigator.mediaSession.setActionHandler('play', () => { audio.play(); });
+          navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); });
           navigator.mediaSession.setActionHandler('seekto', (d) => { if (d.seekTime != null) audio.currentTime = d.seekTime; });
         } catch (e) { /* Media Session 不可用，忽略 */ }
       }
 
-      // 静音检测：读取 AnalyserNode 波形数据计算 RMS，连续 3 秒静音则触发恢复
-      // 用 rAF 驱动，仅在页面可见时工作（iOS 后台 AudioContext 会挂起，这是硬限制）
-      let silenceData = null;
-      function checkSilence() {
-        if (!audioCtx || !analyser) return;
-        if (audio.paused || audio.ended || recovering) { silentStart = 0; return; }
-        if (!silenceData) silenceData = new Uint8Array(analyser.frequencyBinCount);
-        analyser.getByteTimeDomainData(silenceData);
-        let sum = 0;
-        for (let i = 0; i < silenceData.length; i++) {
-          const v = (silenceData[i] - 128) / 128;
-          sum += v * v;
-        }
-        const rms = Math.sqrt(sum / silenceData.length);
-        if (rms < 0.01) {
-          if (!silentStart) silentStart = Date.now();
-          else if (Date.now() - silentStart > 3000) {
-            silentStart = 0;
-            attemptRecover();
-          }
-        } else {
-          silentStart = 0;
-        }
-      }
-
-      // 页面不可见时暂停高亮循环，节省电量；回到前台时恢复 AudioContext（iOS 后台会挂起）
+      // 页面不可见时暂停高亮循环，节省电量
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) stopHighlight();
-        else {
-          if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-          if (!audio.paused) startHighlight();
-        }
+        else if (!audio.paused) startHighlight();
       });
 
       // timeupdate 仅用于进度条更新（备用，避免 rAF 停止时进度条卡住）
@@ -528,18 +437,16 @@ if (annotated.length > 0) {
         }
       });
       audio.addEventListener('loadedmetadata', () => {
-        if (recovering) return;  // 恢复中 load() 会重新触发，不要覆盖缓冲状态
         dur.textContent = fmt(audio.duration);
         setState('ready', '点击播放');
       });
       audio.addEventListener('play', () => { setupMediaSession(); setPlayingUI(true); setState('playing', '正在播放'); startHighlight(); });
-      audio.addEventListener('pause', () => { if (recovering) return; setPlayingUI(false); setState('ready', '已暂停'); stopHighlight(); });
+      audio.addEventListener('pause', () => { setPlayingUI(false); setState('ready', '已暂停'); stopHighlight(); });
       audio.addEventListener('ended', () => { setPlayingUI(false); setState('ready', '本集已播完'); stopHighlight(); });
       audio.addEventListener('error', () => { setPlayingUI(false); setState('error', '音频加载失败'); });
       // 流式播放缓冲事件：waiting = 缓冲区空了真正在等数据，playing = 缓冲恢复可以播了
-      // 注意：stalled 不处理 —— 它在"请求发出但数据暂未到"时触发，此时缓冲区可能还有数据在正常播放
-      audio.addEventListener('waiting', () => { if (!recovering) setState('buffering', '正在缓冲...'); });
-      audio.addEventListener('playing', () => { retryCount = 0; setState('playing', '正在播放'); });
+      audio.addEventListener('waiting', () => { setState('buffering', '正在缓冲...'); });
+      audio.addEventListener('playing', () => { setState('playing', '正在播放'); });
 
       speedBtns.forEach(b => {
         b.addEventListener('click', () => {
