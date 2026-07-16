@@ -258,8 +258,6 @@ if (annotated.length > 0) {
       const body = document.getElementById('story-body');
       if (!audio || !body) return;
 
-      let mediaSessionConfigured = false;
-
       // fallback 路径：没有 .w span 时从 ruby 元素构建
       const words = Array.from(body.querySelectorAll('.story-body__text > p')).flatMap(p =>
         Array.from(p.querySelectorAll('ruby')).map(r => ({
@@ -393,27 +391,6 @@ if (annotated.length > 0) {
       function startHighlight() { if (!rafId) highlightLoop(); }
       function stopHighlight() { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
 
-      // 配置 Media Session API：锁屏界面显示播放器（标题+封面+控制按钮）
-      // 让 iOS 把网页注册为"正在播放音频的 App"，不随意挂起音频会话
-      function setupMediaSession() {
-        if (mediaSessionConfigured || !('mediaSession' in navigator)) return;
-        mediaSessionConfigured = true;
-        try {
-          // 从 DOM 读取标题和封面，避免依赖 frontmatter 变量（内联 script 在客户端执行）
-          const titleEl = document.querySelector('.story-head__title');
-          const coverEl = document.querySelector('.story-cover img');
-          navigator.mediaSession.metadata = new MediaMetadata({
-            title: titleEl ? titleEl.textContent : '仙子大战女巫',
-            artist: '仙子大战女巫',
-            album: '童话有声绘本',
-            artwork: coverEl ? [{ src: coverEl.src, sizes: '1024x1024', type: 'image/jpeg' }] : [],
-          });
-          navigator.mediaSession.setActionHandler('play', () => { audio.play(); });
-          navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); });
-          navigator.mediaSession.setActionHandler('seekto', (d) => { if (d.seekTime != null) audio.currentTime = d.seekTime; });
-        } catch (e) { /* Media Session 不可用，忽略 */ }
-      }
-
       // 页面不可见时暂停高亮循环，节省电量
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) stopHighlight();
@@ -440,7 +417,7 @@ if (annotated.length > 0) {
         dur.textContent = fmt(audio.duration);
         setState('ready', '点击播放');
       });
-      audio.addEventListener('play', () => { setupMediaSession(); setPlayingUI(true); setState('playing', '正在播放'); startHighlight(); });
+      audio.addEventListener('play', () => { setPlayingUI(true); setState('playing', '正在播放'); startHighlight(); });
       audio.addEventListener('pause', () => { setPlayingUI(false); setState('ready', '已暂停'); stopHighlight(); });
       audio.addEventListener('ended', () => { setPlayingUI(false); setState('ready', '本集已播完'); stopHighlight(); });
       audio.addEventListener('error', () => { setPlayingUI(false); setState('error', '音频加载失败'); });
